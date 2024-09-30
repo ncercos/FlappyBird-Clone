@@ -4,13 +4,18 @@ import game.states.MenuState;
 import game.states.State;
 import inputs.KeyboardInputs;
 import inputs.MouseInputs;
+import world.WorldManager;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 /*
  * Written by Nicholas Cercos
@@ -19,21 +24,23 @@ import java.awt.event.WindowFocusListener;
 public class Game extends JPanel implements ActionListener {
 
 	// Utils
-	public final static float GAME_SCALE = 1f;
+	public final static float GAME_SCALE = 1.5f;
 	public final static int GAME_WIDTH = (int) (360 * GAME_SCALE);
 	public final static int GAME_HEIGHT = (int) (640 * GAME_SCALE);
 	public static final String RESOURCE_URL = "./res/";
-
-	// States
-	private final Timer timer;
-	private final MenuState menuState;
 
 	// Screen
 	private Image scene;
 	private Graphics pen;
 
-	public Game() {
+	// States
+	private final Timer timer;
+	private final MenuState menuState;
 
+	// World
+	private final WorldManager worldManager;
+
+	public Game() {
 		// Create game panel
 		MouseInputs mouseInputs = new MouseInputs(this);
 		setPreferredSize(new Dimension(GAME_WIDTH, GAME_HEIGHT));
@@ -65,6 +72,7 @@ public class Game extends JPanel implements ActionListener {
 		});
 
 		// Initialize game
+		worldManager = new WorldManager(this);
 		menuState = new MenuState(this);
 		timer = new Timer(1000/60, this);
 		requestFocus();
@@ -95,17 +103,6 @@ public class Game extends JPanel implements ActionListener {
 	 *
 	 * @param g The graphics context.
 	 */
-	public void draw(Graphics g) {
-		getCurrentState().draw(g);
-	}
-
-	/**
-	 * Action performed when game window is not in focus.
-	 */
-	public void lostFocus() {
-		getCurrentState().lostFocus();
-	}
-
 	@Override
 	protected void paintComponent(Graphics g) {
 		if(scene == null) {
@@ -126,10 +123,32 @@ public class Game extends JPanel implements ActionListener {
 		repaint();
 	}
 
+	/**
+	 * @return The game's current state.
+	 */
 	public State getCurrentState() {
 		switch (GameState.current) {
 			case MENU -> { return menuState; }
 		}
 		return null;
+	}
+
+	/**
+	 * Loads any sprite within the game's resource directory.
+	 *
+	 * @param path The path starting from the res folder.
+	 * @return An image, if it exists, otherwise null.
+	 */
+	public static BufferedImage loadSprite(String path) {
+		try {
+			return ImageIO.read(new File(Game.RESOURCE_URL + path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public WorldManager getWorldManager() {
+		return worldManager;
 	}
 }
