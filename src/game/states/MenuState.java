@@ -39,7 +39,8 @@ public class MenuState extends State {
 	@Override
 	public void draw(Graphics g) {
 		game.getWorldManager().drawBackground(g, bgFloorOffset);
-		g.drawImage(logoImg, 30, (int) logoHeight, logoImg.getWidth() / 2, logoImg.getHeight() / 2, null);
+		g.drawImage(logoImg, (int) (21 * Game.GAME_SCALE), (int) logoHeight, (int) (((float) logoImg.getWidth() / 3) * Game.GAME_SCALE),
+				(int) (((float) logoImg.getHeight() / 3) * Game.GAME_SCALE), null);
 	}
 
 	@Override
