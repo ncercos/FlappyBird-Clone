@@ -2,10 +2,13 @@ package game.states;
 
 import game.Game;
 import game.GameState;
+import ui.Button;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Written by Nicholas Cercos
@@ -14,21 +17,38 @@ import java.awt.event.MouseEvent;
 public abstract class State {
 
 	protected final Game game;
+	protected final List<Button> buttons;
 
 	public State(Game game) {
 		this.game = game;
+		buttons = new ArrayList<>();
 	}
 
 	public abstract void update();
-	public abstract void draw(Graphics g);
+	public abstract void onDraw(Graphics g);
 	public abstract void lostFocus();
 	public abstract void keyPressed(KeyEvent e);
 	public abstract void keyReleased(KeyEvent e);
 	public abstract void mouseClicked(MouseEvent e);
-	public abstract void mousePressed(MouseEvent e);
-	public abstract void mouseReleased(MouseEvent e);
+	protected abstract void onMousePress(MouseEvent e);
+	protected abstract void onMouseRelease(MouseEvent e);
 	public abstract void mouseMoved(MouseEvent e);
 	public abstract void mouseDragged(MouseEvent e);
+
+	public void draw(Graphics g) {
+		onDraw(g);
+		buttons.forEach(b -> b.draw(g));
+	}
+
+	public void mousePressed(MouseEvent e) {
+		buttons.forEach(b -> b.onMousePress(e));
+		onMousePress(e);
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		buttons.forEach(b -> b.onMouseRelease(e));
+		onMouseRelease(e);
+	}
 
 	/**
 	 * Sets the state of the game.

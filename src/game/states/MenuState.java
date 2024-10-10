@@ -1,6 +1,8 @@
 package game.states;
 
 import game.Game;
+import ui.buttons.ScoreButton;
+import ui.buttons.StartButton;
 import utils.Location;
 import world.Bird;
 
@@ -19,13 +21,15 @@ public class MenuState extends State {
 	private BufferedImage authorImg;
 
 	private final int LOGO_WIDTH, LOGO_HEIGHT, AUTHOR_WIDTH, AUTHOR_HEIGHT;
-	private double time, amplitude, frequency, logoY;
+	private final double amplitude, frequency, logoY;
+	private double time;
 
 	private final Bird bird;
 
 	public MenuState(Game game) {
 		super(game);
 		loadTextSprites();
+		registerButtons();
 
 		LOGO_WIDTH = Game.scale(logoImg.getWidth());
 		LOGO_HEIGHT = Game.scale(logoImg.getHeight());
@@ -39,17 +43,6 @@ public class MenuState extends State {
 		bird = new Bird();
 	}
 
-	@Override
-	public void draw(Graphics g) {
-		game.getWorldManager().drawBackground(g);
-		int bounceY = (int) (logoY + (int) (Math.sin(time) * amplitude));
-		bird.teleport(new Location(Game.GAME_WIDTH / 2.0 + Game.scale(42), bounceY + 10));
-		g.drawImage(logoImg, ((Game.GAME_WIDTH / 2) - (LOGO_WIDTH / 2)) - (Game.scale(10)), bounceY , LOGO_WIDTH, LOGO_HEIGHT, null);
-		g.drawImage(authorImg, (Game.GAME_WIDTH / 2) - (AUTHOR_WIDTH / 2), Game.GAME_HEIGHT - Game.scale(47),
-				AUTHOR_WIDTH, AUTHOR_HEIGHT, null);
-		bird.draw(g);
-	}
-
 	/**
 	 * Loads all user-interface menu-related texts.
 	 */
@@ -59,9 +52,28 @@ public class MenuState extends State {
 		authorImg = Game.loadSprite(PATH + "author.png");
 	}
 
+	/**
+	 * Register all buttons for this state.
+	 */
+	private void registerButtons() {
+		buttons.add(new StartButton((Game.GAME_WIDTH / 4.0) - Game.scale(15), Game.scale(180)));
+		buttons.add(new ScoreButton((Game.GAME_WIDTH / 4.0) + Game.scale(47), Game.scale(180)));
+	}
+
 	@Override
 	public void update() {
 		time += frequency;
+	}
+
+	@Override
+	public void onDraw(Graphics g) {
+		game.getWorldManager().drawBackground(g);
+		int bounceY = (int) (logoY + (int) (Math.sin(time) * amplitude));
+		bird.teleport(new Location(Game.GAME_WIDTH / 2.0 + Game.scale(42), bounceY + 10));
+		g.drawImage(logoImg, ((Game.GAME_WIDTH / 2) - (LOGO_WIDTH / 2)) - (Game.scale(10)), bounceY , LOGO_WIDTH, LOGO_HEIGHT, null);
+		g.drawImage(authorImg, (Game.GAME_WIDTH / 2) - (AUTHOR_WIDTH / 2), Game.GAME_HEIGHT - Game.scale(47),
+				AUTHOR_WIDTH, AUTHOR_HEIGHT, null);
+		bird.draw(g);
 	}
 
 	@Override
@@ -77,10 +89,10 @@ public class MenuState extends State {
 	public void mouseClicked(MouseEvent e) {}
 
 	@Override
-	public void mousePressed(MouseEvent e) {}
+	protected void onMousePress(MouseEvent e) {}
 
 	@Override
-	public void mouseReleased(MouseEvent e) {}
+	protected void onMouseRelease(MouseEvent e) {}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {}
