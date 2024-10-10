@@ -1,6 +1,7 @@
 package world;
 
 import game.Game;
+import utils.Hitbox;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -21,6 +22,8 @@ public class WorldManager {
 	private int groundX, groundSpeed;
 	private final List<Pipe> pipes;
 
+	private final Hitbox groundHB;
+
 	public WorldManager(Game game) {
 		this.game = game;
 		daytime = ThreadLocalRandom.current().nextBoolean();
@@ -30,7 +33,8 @@ public class WorldManager {
 		GROUND_HEIGHT = Game.scale(groundImg.getHeight());
 		GROUND_DRAW_HEIGHT = Game.GAME_HEIGHT - GROUND_HEIGHT;
 		groundX = 0;
-		groundSpeed = 5;
+		groundSpeed = Game.scale(1.5);
+		groundHB = new Hitbox(0, Game.scale(200), 144, 60);
 
 		pipes = new ArrayList<>();
 	}
@@ -42,13 +46,14 @@ public class WorldManager {
 	 */
 	public void drawBackground(Graphics g) {
 		g.drawImage(backgroundImg, 0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT, null);
-		if(game.getPlayingState() == null || !game.getPlayingState().isPaused()) {
+		if(game.getPlayingState() == null || (!game.getPlayingState().isGameOver() && !game.getPlayingState().isPaused())) {
 			groundX -= groundSpeed;
 			if (groundX <= -GROUND_WIDTH) groundX = 0;
 		}
 		if(game.getPlayingState() != null && game.getPlayingState().isReady()) drawPipes(g);
 		g.drawImage(groundImg, groundX, GROUND_DRAW_HEIGHT, GROUND_WIDTH, GROUND_HEIGHT, null);
 		g.drawImage(groundImg, groundX + GROUND_WIDTH, GROUND_DRAW_HEIGHT, GROUND_WIDTH, GROUND_HEIGHT, null);
+		groundHB.draw(g);
 	}
 
 	/**
@@ -56,14 +61,14 @@ public class WorldManager {
 	 */
 	public void placePipes() {
 		// Top Pipe
-		Pipe topPipe = new Pipe(topPipeImg);
+		Pipe topPipe = new Pipe(topPipeImg, groundSpeed);
 		int randomY = (int) (topPipe.getY() - topPipe.getHeight() / 4.0 - Math.random() * (topPipe.getHeight() / 2.0));
 		topPipe.setY(randomY);
 		pipes.add(topPipe);
 
 		// Bottom Pipe
-		Pipe bottomPipe = new Pipe(bottomPipeImg);
-		int openingSpace = Game.GAME_HEIGHT / 4;
+		Pipe bottomPipe = new Pipe(bottomPipeImg, groundSpeed);
+		int openingSpace = Game.GAME_HEIGHT / 5;
 		bottomPipe.setY(topPipe.getY() + bottomPipe.getHeight() + openingSpace);
 		pipes.add(bottomPipe);
 	}
@@ -71,9 +76,18 @@ public class WorldManager {
 	/**
 	 * Move all pipes down the world.
 	 */
-	public void movePipes() {
-		for(int i = 0; i < pipes.size(); i++)
-			pipes.get(i).move();
+	public boolean movePipes() {
+		for(int i = 0; i < pipes.size(); i++) {
+			Pipe pipe = pipes.get(i);
+			pipe.move();
+
+			if(pipe.overlaps(game.getBird())) return true;
+			if(!pipe.hasPassed() && game.getBird().getX() > pipe.getX() + pipe.getWidth()) {
+				pipe.passed();
+				// TODO: Increase score
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -105,5 +119,9 @@ public class WorldManager {
 	 */
 	public void setGroundSpeed(int groundSpeed) {
 		this.groundSpeed = groundSpeed;
+	}
+
+	public Hitbox getGroundHB() {
+		return groundHB;
 	}
 }

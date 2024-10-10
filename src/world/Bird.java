@@ -16,10 +16,12 @@ public class Bird extends Hitbox {
 	private static final int BIRD_WIDTH = 34;
 	private static final int BIRD_HEIGHT = 24;
 	private static final double GRAVITY = 0.5 * Game.GAME_SCALE;
+	private static final double MAX_TILT = Math.toRadians(8) * Game.GAME_SCALE;
 
 	private final Game game;
 	private final Animation animation;
 	private double vy;
+	private boolean dead;
 
 	public Bird(Game game, double x, double y) {
 		super(x, y, BIRD_WIDTH / 2, BIRD_HEIGHT/ 2);
@@ -35,17 +37,36 @@ public class Bird extends Hitbox {
 	public void draw(Graphics g) {
 		super.draw(g);
 
-		g.drawImage(animation.getCurrentImage(game.getPlayingState()), (int) x, (int) y, width, height, null);
+		Graphics2D g2d = (Graphics2D)g;
+		double tilt = Math.max(-MAX_TILT, Math.min(MAX_TILT, vy * 0.1));
+
+		g2d.translate((int) x + width / 2, (int) y + height / 2);
+		g2d.rotate(tilt);
+		g2d.drawImage(animation.getCurrentImage(game.getPlayingState()), -width / 2, -height / 2, width, height, null);
+
+		g2d.rotate(-tilt);
+		g2d.translate(-(int) x - width / 2, -(int) y - height / 2);
 	}
 
+	/**
+	 * Apply physics, velocity, and ensure bird cannot jump over screen.
+	 */
 	public void move() {
+		if(dead)return;
 		vy += GRAVITY;
 		y += vy;
 		y = Math.max(y, 0);
+		if(overlaps(game.getWorldManager().getGroundHB())) {
+			dead = true;
+			y = game.getWorldManager().getGroundHB().getY() - height;
+		}
 	}
 
+	/**
+	 * Jump upwards.
+	 */
 	public void jump() {
-		vy += Game.scale(-8);
+		vy = Game.scale(-5);
 	}
 
 	/**
@@ -63,5 +84,9 @@ public class Bird extends Hitbox {
 
 	public Game getGame() {
 		return game;
+	}
+
+	public boolean isDead() {
+		return dead;
 	}
 }

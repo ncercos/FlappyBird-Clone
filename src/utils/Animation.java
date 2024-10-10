@@ -65,7 +65,7 @@ public class Animation {
 	 */
 	public Image getCurrentImage(PlayingState state) {
 		if(images == null) return null;
-		if(state == null || !state.isPaused()) delay--;
+		if(state == null || (!state.isPaused() && !state.isGameOver())) delay--;
 		if(delay == 0) {
 			current++;
 			reset(current == images.length);

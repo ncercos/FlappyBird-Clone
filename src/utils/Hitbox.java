@@ -70,6 +70,10 @@ public class Hitbox {
 		y = location.getY();
 	}
 
+	public void debug() {
+		debug = true;
+	}
+
 	public double getX() {
 		return x;
 	}

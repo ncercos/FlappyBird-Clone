@@ -4,6 +4,7 @@ import game.Game;
 import ui.buttons.PauseButton;
 import ui.buttons.UnpauseButton;
 import utils.Location;
+import world.Bird;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +20,7 @@ public class PlayingState extends State {
 
 	private BufferedImage readyImg, instructionImg, overImg;
 	private final int READY_WIDTH, READY_HEIGHT, INSTRUCTION_WIDTH, INSTRUCTION_HEIGHT, OVER_WIDTH, OVER_HEIGHT;
-	private boolean ready, paused;
+	private boolean ready, paused, gameOver;
 	private PauseButton pauseButton;
 	private UnpauseButton unpauseButton;
 	private final Timer pipeTimer;
@@ -37,7 +38,7 @@ public class PlayingState extends State {
 		OVER_WIDTH = Game.scale(overImg.getWidth());
 		OVER_HEIGHT = Game.scale(overImg.getHeight());
 
-		pipeTimer = new Timer(2500, _ -> game.getWorldManager().placePipes());
+		pipeTimer = new Timer(Game.scale(437), _ -> game.getWorldManager().placePipes());
 	}
 
 	/**
@@ -72,14 +73,11 @@ public class PlayingState extends State {
 		}
 	}
 
-	public boolean isReady() {
-		return ready;
-	}
-
-	public boolean isPaused() {
-		return paused;
-	}
-
+	/**
+	 * Toggle game pause.
+	 *
+	 * @param paused Should the game freeze/unfreeze?
+	 */
 	public void setPaused(boolean paused) {
 		this.paused = paused;
 		updatePauseButton();
@@ -89,16 +87,32 @@ public class PlayingState extends State {
 		else pipeTimer.start();
 	}
 
+	public boolean isPaused() {
+		return paused;
+	}
+
+	public boolean isReady() {
+		return ready;
+	}
+
+	public boolean isGameOver() {
+		return gameOver;
+	}
+
 	@Override
 	public void update() {
 		if(paused)return;
+		Bird bird = game.getBird();
+
 		if(!ready) {
-			game.getBird().teleport(new Location(Game.scale(35), Game.scale(100)));
+			bird.teleport(new Location(Game.scale(35), Game.scale(100)));
 			return;
 		}
 
-		game.getWorldManager().movePipes();
-		game.getBird().move();
+		bird.move();
+		if(gameOver)return;
+		if(game.getWorldManager().movePipes() || bird.isDead())
+			gameOver = true;
 	}
 
 	@Override
@@ -118,7 +132,7 @@ public class PlayingState extends State {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(e.getKeyCode() != KeyEvent.VK_SPACE)return;
+		if(e.getKeyCode() != KeyEvent.VK_SPACE || gameOver)return;
 		if(!ready) {
 			ready = true;
 			pipeTimer.start();

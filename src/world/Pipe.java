@@ -16,10 +16,10 @@ public class Pipe extends Hitbox {
 	private final int vx;
 	private boolean passed;
 
-	public Pipe(BufferedImage img) {
+	public Pipe(BufferedImage img, int groundSpeed) {
 		super(Game.GAME_WIDTH, 0, 26, 135);
 		this.img = img;
-		vx = Game.scale(-1);
+		vx = -groundSpeed;
 	}
 
 	/**
@@ -31,7 +31,24 @@ public class Pipe extends Hitbox {
 		g.drawImage(img, (int) x, (int) y, width, height, null);
 	}
 
+	/**
+	 * Moves the pipe to the left (follows ground speed).
+	 */
 	public void move() {
 		x += vx;
+	}
+
+	/**
+	 * @return True if the bird has passed this pipe.
+	 */
+	public boolean hasPassed() {
+		return passed;
+	}
+
+	/**
+	 * Passed the pipe!
+	 */
+	public void passed() {
+		passed = true;
 	}
 }

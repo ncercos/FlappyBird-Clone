@@ -161,7 +161,7 @@ public class Game extends JPanel implements ActionListener {
 	 * @param value The value to be scaled.
 	 * @return An integer increased to the game scale.
 	 */
-	public static int scale(int value) {
+	public static int scale(double value) {
 		return (int) (value * Game.GAME_SCALE);
 	}
 
