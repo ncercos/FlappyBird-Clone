@@ -4,6 +4,7 @@ import game.Game;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.ThreadLocalRandom;
 
 /*
  * Written by Nicholas Cercos
@@ -12,42 +13,54 @@ import java.awt.image.BufferedImage;
 public class WorldManager {
 
 	private final Game game;
-	private BufferedImage bgSkyImg;
-	private BufferedImage bgFloorImg;
+
+	private final boolean daytime;
+	private final int GROUND_WIDTH, GROUND_HEIGHT, GROUND_DRAW_HEIGHT;
+	private int groundX, groundSpeed;
+
+	private BufferedImage backgroundImg;
+	private BufferedImage groundImg;
 
 	public WorldManager(Game game) {
 		this.game = game;
-		loadBackgroundSprites();
+		daytime = ThreadLocalRandom.current().nextBoolean();
+		loadSprites();
+
+		GROUND_WIDTH = Game.scale(groundImg.getWidth());
+		GROUND_HEIGHT = Game.scale(groundImg.getHeight());
+		GROUND_DRAW_HEIGHT = Game.GAME_HEIGHT - GROUND_HEIGHT;
+		groundX = 0;
+		groundSpeed = 5;
 	}
 
 	/**
 	 * Draws the background scene.
 	 *
-	 * @param g       The graphics context.
-	 * @param offsetX The offset to determine floor location (mimics scrolling).
+	 * @param g The graphics context.
 	 */
-	public void drawBackground(Graphics g, int offsetX) {
-		final int SKY_HEIGHT = (int) (bgSkyImg.getHeight() * Game.GAME_SCALE);
-		final int FLOOR_WIDTH = (int) (bgFloorImg.getWidth() * Game.GAME_SCALE);
-
-		g.drawImage(bgSkyImg, 0, 0, (int) (bgSkyImg.getWidth() * Game.GAME_SCALE), SKY_HEIGHT, null);
-
-		for (int i = 0; i <= 3; i++) {
-			int xPosition = (i * FLOOR_WIDTH - offsetX) % (3 * FLOOR_WIDTH); // X-Pos for each floor tile
-			g.drawImage(bgFloorImg, xPosition, SKY_HEIGHT, FLOOR_WIDTH, (int) (bgFloorImg.getHeight() * Game.GAME_SCALE), null);
-
-			// Draw an additional floor tile to fill any gap that might appear
-			if (xPosition + FLOOR_WIDTH < Game.WIDTH)
-				g.drawImage(bgFloorImg, xPosition + 3 * FLOOR_WIDTH, SKY_HEIGHT, FLOOR_WIDTH, (int) (bgFloorImg.getHeight() * Game.GAME_SCALE), null);
-		}
+	public void drawBackground(Graphics g) {
+		g.drawImage(backgroundImg, 0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT, null);
+		groundX -= groundSpeed;
+		if(groundX <= -GROUND_WIDTH) groundX = 0;
+		g.drawImage(groundImg, groundX, GROUND_DRAW_HEIGHT, GROUND_WIDTH, GROUND_HEIGHT, null);
+		g.drawImage(groundImg, groundX + GROUND_WIDTH, GROUND_DRAW_HEIGHT, GROUND_WIDTH, GROUND_HEIGHT, null);
 	}
 
 	/**
-	 * Loads the top (sky) and bottom (floor) of the background separately.
+	 * Loads the sky and ground sprites to build a complete background.
 	 */
-	private void loadBackgroundSprites() {
+	private void loadSprites() {
 		final String PATH = "background/";
-		bgSkyImg = Game.loadSprite(PATH + "sky.png");
-		bgFloorImg = Game.loadSprite(PATH + "floor.png");
+		backgroundImg = Game.loadSprite(PATH + "sky/" + (daytime ? "day" : "night") + ".png");
+		groundImg = Game.loadSprite(PATH + "ground.png");
+	}
+
+	/**
+	 * Updates ground speed value. (Default = 5)
+	 *
+	 * @param groundSpeed The speed the ground should move.
+	 */
+	public void setGroundSpeed(int groundSpeed) {
+		this.groundSpeed = groundSpeed;
 	}
 }
