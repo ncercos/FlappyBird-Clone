@@ -24,9 +24,9 @@ import java.io.IOException;
 public class Game extends JPanel implements ActionListener {
 
 	// Utils
-	public final static float GAME_SCALE = 1.5f;
-	public final static int GAME_WIDTH = (int) (360 * GAME_SCALE);
-	public final static int GAME_HEIGHT = (int) (640 * GAME_SCALE);
+	public final static float GAME_SCALE = 4f;
+	public final static int GAME_WIDTH = scale(144);
+	public final static int GAME_HEIGHT = scale(256);
 	public static final String RESOURCE_URL = "./res/";
 
 	// Screen
@@ -52,7 +52,7 @@ public class Game extends JPanel implements ActionListener {
 		// Create game window
 		JFrame frame = new JFrame();
 		frame.setTitle("Flappy Bird");
-		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(RESOURCE_URL + "bird.png"));
+		frame.setIconImage(loadSprite("ui/icon.png"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(this);
 		frame.setResizable(false);
@@ -146,6 +146,16 @@ public class Game extends JPanel implements ActionListener {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Scales any value to the proper size based on GAME_SCALE.
+	 *
+	 * @param value The value to be scaled.
+	 * @return An integer increased to the game scale.
+	 */
+	public static int scale(int value) {
+		return (int) (value * Game.GAME_SCALE);
 	}
 
 	public WorldManager getWorldManager() {
