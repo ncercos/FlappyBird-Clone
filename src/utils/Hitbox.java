@@ -46,6 +46,20 @@ public class Hitbox {
 	}
 
 	/**
+	 * Checks if the mouse collides with hitbox.
+	 *
+	 * @param mx The x-coordinate.
+	 * @param my The y-coordinate.
+	 * @return True if the point is within hitbox.
+	 */
+	public boolean contains(int mx, int my) {
+		return (mx >= x  )       &&
+				   (mx <= x + width) &&
+				   (my >= y  )       &&
+				   (my <= y + height);
+	}
+
+	/**
 	 * Teleport hitbox to a specific location.
 	 *
 	 * @param location The location to teleport to.
