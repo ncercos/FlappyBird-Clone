@@ -2,11 +2,10 @@ package game.states;
 
 import game.Game;
 import ui.buttons.PauseButton;
-import ui.buttons.ScoreButton;
-import ui.buttons.StartButton;
 import ui.buttons.UnpauseButton;
 import utils.Location;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -18,11 +17,12 @@ import java.awt.image.BufferedImage;
  */
 public class PlayingState extends State {
 
-	private BufferedImage readyImg, overImg, instructionImg;
-	private final int READY_WIDTH, READY_HEIGHT, INSTRUCTION_WIDTH, INSTRUCTION_HEIGHT;
+	private BufferedImage readyImg, instructionImg, overImg;
+	private final int READY_WIDTH, READY_HEIGHT, INSTRUCTION_WIDTH, INSTRUCTION_HEIGHT, OVER_WIDTH, OVER_HEIGHT;
 	private boolean ready, paused;
 	private PauseButton pauseButton;
 	private UnpauseButton unpauseButton;
+	private final Timer pipeTimer;
 
 	public PlayingState(Game game) {
 		super(game);
@@ -34,6 +34,10 @@ public class PlayingState extends State {
 		READY_HEIGHT = Game.scale(readyImg.getHeight());
 		INSTRUCTION_WIDTH = Game.scale(instructionImg.getWidth());
 		INSTRUCTION_HEIGHT = Game.scale(instructionImg.getHeight());
+		OVER_WIDTH = Game.scale(overImg.getWidth());
+		OVER_HEIGHT = Game.scale(overImg.getHeight());
+
+		pipeTimer = new Timer(2500, _ -> game.getWorldManager().placePipes());
 	}
 
 	/**
@@ -42,7 +46,7 @@ public class PlayingState extends State {
 	private void loadTextSprites() {
 		final String PATH = "ui/text/";
 		readyImg = Game.loadSprite(PATH + "get_ready.png");
-		//overImg = Game.loadSprite(PATH + "game_over.png");
+		overImg = Game.loadSprite(PATH + "game_over.png");
 		instructionImg = Game.loadSprite("ui/instruction.png");
 	}
 
@@ -68,6 +72,10 @@ public class PlayingState extends State {
 		}
 	}
 
+	public boolean isReady() {
+		return ready;
+	}
+
 	public boolean isPaused() {
 		return paused;
 	}
@@ -75,21 +83,33 @@ public class PlayingState extends State {
 	public void setPaused(boolean paused) {
 		this.paused = paused;
 		updatePauseButton();
+
+		if(!ready)return;
+		if(paused) pipeTimer.stop();
+		else pipeTimer.start();
 	}
 
 	@Override
 	public void update() {
-		if(ready)return;
-		game.getBird().teleport(new Location(Game.scale(35), Game.scale(100)));
+		if(paused)return;
+		if(!ready) {
+			game.getBird().teleport(new Location(Game.scale(35), Game.scale(100)));
+			return;
+		}
+
+		game.getWorldManager().movePipes();
+		game.getBird().move();
 	}
 
 	@Override
 	public void onDraw(Graphics g) {
 		game.getWorldManager().drawBackground(g);
+
 		if(!ready) {
 			g.drawImage(readyImg, (Game.GAME_WIDTH / 2) - (READY_WIDTH / 2), (Game.GAME_HEIGHT / 4), READY_WIDTH, READY_HEIGHT, null);
 			g.drawImage(instructionImg, (Game.GAME_WIDTH / 2) - (INSTRUCTION_WIDTH / 2) + Game.scale(8), (Game.GAME_HEIGHT / 4) + Game.scale(49), INSTRUCTION_WIDTH, INSTRUCTION_HEIGHT, null);
 		}
+
 		game.getBird().draw(g);
 	}
 
@@ -99,7 +119,12 @@ public class PlayingState extends State {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if(e.getKeyCode() != KeyEvent.VK_SPACE)return;
-		if(!ready) ready = true;
+		if(!ready) {
+			ready = true;
+			pipeTimer.start();
+			return;
+		}
+		game.getBird().jump();
 	}
 
 	@Override

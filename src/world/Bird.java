@@ -45,7 +45,7 @@ public class Bird extends Hitbox {
 	}
 
 	public void jump() {
-		vy += -9 * Game.GAME_SCALE;
+		vy += Game.scale(-8);
 	}
 
 	/**
@@ -63,9 +63,5 @@ public class Bird extends Hitbox {
 
 	public Game getGame() {
 		return game;
-	}
-
-	public Animation getAnimation() {
-		return animation;
 	}
 }
