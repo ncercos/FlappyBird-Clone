@@ -1,5 +1,6 @@
 package ui.buttons;
 
+import game.states.State;
 import ui.Button;
 
 /*
@@ -8,8 +9,8 @@ import ui.Button;
  */
 public class ScoreButton extends Button {
 
-	public ScoreButton(double x, double y) {
-		super("score", x, y, 40, 14);
+	public ScoreButton(State state, double x, double y) {
+		super(state, "score", x, y, 40, 14);
 	}
 
 	@Override

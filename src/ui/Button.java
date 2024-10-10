@@ -1,6 +1,7 @@
 package ui;
 
 import game.Game;
+import game.states.State;
 import utils.Hitbox;
 
 import java.awt.*;
@@ -13,14 +14,22 @@ import java.awt.image.BufferedImage;
  */
 public abstract class Button extends Hitbox {
 
+	protected State state;
+	protected String name;
 	protected BufferedImage img;
 	private boolean pressed;
 	private final int PRESS_DEPTH;
 
-	public Button(String fileName, double x, double y, int width, int height) {
+	public Button(State state, String fileName, double x, double y, int width, int height) {
 		super(x, y, width, height);
-		img = Game.loadSprite("ui/buttons/" + fileName + ".png");
+		this.state = state;
+		name = fileName;
+		img = Game.loadSprite("ui/buttons/" + name + ".png");
 		PRESS_DEPTH = 2;
+	}
+
+	public Button(String fileName, double x, double y, int width, int height) {
+		this(null, fileName, x, y, width, height);
 	}
 
 	protected abstract void onPress();
@@ -59,6 +68,14 @@ public abstract class Button extends Hitbox {
 	 */
 	public void draw(Graphics g) {
 		g.drawImage(img, (int) x, (int) y, width, height, null);
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public BufferedImage getImg() {

@@ -40,8 +40,10 @@ public class WorldManager {
 	 */
 	public void drawBackground(Graphics g) {
 		g.drawImage(backgroundImg, 0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT, null);
-		groundX -= groundSpeed;
-		if(groundX <= -GROUND_WIDTH) groundX = 0;
+		if(game.getPlayingState() == null || !game.getPlayingState().isPaused()) {
+			groundX -= groundSpeed;
+			if (groundX <= -GROUND_WIDTH) groundX = 0;
+		}
 		g.drawImage(groundImg, groundX, GROUND_DRAW_HEIGHT, GROUND_WIDTH, GROUND_HEIGHT, null);
 		g.drawImage(groundImg, groundX + GROUND_WIDTH, GROUND_DRAW_HEIGHT, GROUND_WIDTH, GROUND_HEIGHT, null);
 	}

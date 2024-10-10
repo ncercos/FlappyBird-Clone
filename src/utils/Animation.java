@@ -1,6 +1,7 @@
 package utils;
 
 import game.Game;
+import game.states.PlayingState;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -62,9 +63,9 @@ public class Animation {
 	/**
 	 * @return The current image within the animation.
 	 */
-	public Image getCurrentImage() {
+	public Image getCurrentImage(PlayingState state) {
 		if(images == null) return null;
-		delay--;
+		if(state == null || !state.isPaused()) delay--;
 		if(delay == 0) {
 			current++;
 			reset(current == images.length);

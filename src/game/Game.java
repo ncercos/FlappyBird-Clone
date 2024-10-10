@@ -1,9 +1,11 @@
 package game;
 
 import game.states.MenuState;
+import game.states.PlayingState;
 import game.states.State;
 import inputs.KeyboardInputs;
 import inputs.MouseInputs;
+import world.Bird;
 import world.WorldManager;
 
 import javax.imageio.ImageIO;
@@ -36,8 +38,10 @@ public class Game extends JPanel implements ActionListener {
 	// States
 	private final Timer timer;
 	private final MenuState menuState;
+	private final PlayingState playingState;
 
 	// World
+	private final Bird bird;
 	private final WorldManager worldManager;
 
 	public Game() {
@@ -73,7 +77,9 @@ public class Game extends JPanel implements ActionListener {
 
 		// Initialize game
 		worldManager = new WorldManager(this);
+		bird = new Bird(this);
 		menuState = new MenuState(this);
+		playingState = new PlayingState(this);
 		timer = new Timer(1000/60, this);
 		requestFocus();
 		init();
@@ -129,6 +135,7 @@ public class Game extends JPanel implements ActionListener {
 	public State getCurrentState() {
 		switch (GameState.current) {
 			case MENU -> { return menuState; }
+			case PLAYING -> { return playingState; }
 		}
 		return null;
 	}
@@ -156,6 +163,14 @@ public class Game extends JPanel implements ActionListener {
 	 */
 	public static int scale(int value) {
 		return (int) (value * Game.GAME_SCALE);
+	}
+
+	public PlayingState getPlayingState() {
+		return playingState;
+	}
+
+	public Bird getBird() {
+		return bird;
 	}
 
 	public WorldManager getWorldManager() {

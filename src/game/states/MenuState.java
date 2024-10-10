@@ -24,8 +24,6 @@ public class MenuState extends State {
 	private final double amplitude, frequency, logoY;
 	private double time;
 
-	private final Bird bird;
-
 	public MenuState(Game game) {
 		super(game);
 		loadTextSprites();
@@ -40,7 +38,6 @@ public class MenuState extends State {
 		amplitude = 15;
 		frequency = 0.125;
 		logoY = Game.GAME_HEIGHT / 4.0;
-		bird = new Bird();
 	}
 
 	/**
@@ -56,8 +53,8 @@ public class MenuState extends State {
 	 * Register all buttons for this state.
 	 */
 	private void registerButtons() {
-		buttons.add(new StartButton((Game.GAME_WIDTH / 4.0) - Game.scale(15), Game.scale(180)));
-		buttons.add(new ScoreButton((Game.GAME_WIDTH / 4.0) + Game.scale(47), Game.scale(180)));
+		buttons.add(new StartButton(this, (Game.GAME_WIDTH / 4.0) - Game.scale(15), Game.scale(180)));
+		buttons.add(new ScoreButton(this, (Game.GAME_WIDTH / 4.0) + Game.scale(47), Game.scale(180)));
 	}
 
 	@Override
@@ -69,11 +66,11 @@ public class MenuState extends State {
 	public void onDraw(Graphics g) {
 		game.getWorldManager().drawBackground(g);
 		int bounceY = (int) (logoY + (int) (Math.sin(time) * amplitude));
-		bird.teleport(new Location(Game.GAME_WIDTH / 2.0 + Game.scale(42), bounceY + 10));
+		game.getBird().teleport(new Location(Game.GAME_WIDTH / 2.0 + Game.scale(42), bounceY + 10));
 		g.drawImage(logoImg, ((Game.GAME_WIDTH / 2) - (LOGO_WIDTH / 2)) - (Game.scale(10)), bounceY , LOGO_WIDTH, LOGO_HEIGHT, null);
 		g.drawImage(authorImg, (Game.GAME_WIDTH / 2) - (AUTHOR_WIDTH / 2), Game.GAME_HEIGHT - Game.scale(47),
 				AUTHOR_WIDTH, AUTHOR_HEIGHT, null);
-		bird.draw(g);
+		game.getBird().draw(g);
 	}
 
 	@Override

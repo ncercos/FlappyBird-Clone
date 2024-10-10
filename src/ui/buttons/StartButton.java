@@ -1,5 +1,7 @@
 package ui.buttons;
 
+import game.GameState;
+import game.states.State;
 import ui.Button;
 
 /*
@@ -8,17 +10,15 @@ import ui.Button;
  */
 public class StartButton extends Button {
 
-	public StartButton(double x, double y) {
-		super("start", x, y, 40, 14);
+	public StartButton(State state, double x, double y) {
+		super(state, "start", x, y, 40, 14);
 	}
 
 	@Override
-	public void onPress() {
-
-	}
+	public void onPress() {}
 
 	@Override
 	public void onRelease() {
-
+		state.setState(GameState.PLAYING);
 	}
 }

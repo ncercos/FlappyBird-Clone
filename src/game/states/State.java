@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /*
@@ -41,13 +42,27 @@ public abstract class State {
 	}
 
 	public void mousePressed(MouseEvent e) {
-		buttons.forEach(b -> b.onMousePress(e));
+		for (Button button : buttons) button.onMousePress(e);
 		onMousePress(e);
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		buttons.forEach(b -> b.onMouseRelease(e));
+		for (Button button : buttons) button.onMouseRelease(e);
 		onMouseRelease(e);
+	}
+
+	/**
+	 * Unregisters a button.
+	 *
+	 * @param name The (file) name of the button.
+	 */
+	public void unregisterButton(String name) {
+		Iterator<Button> it = buttons.iterator();
+		while (it.hasNext()) {
+			Button button = it.next();
+			if(!button.getName().equalsIgnoreCase(name))continue;
+			it.remove();
+		}
 	}
 
 	/**
