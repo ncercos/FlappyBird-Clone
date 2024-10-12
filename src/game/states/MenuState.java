@@ -4,12 +4,11 @@ import game.Game;
 import ui.buttons.ScoreButton;
 import ui.buttons.StartButton;
 import utils.Location;
-import world.Bird;
+import utils.Sprite;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
 /*
  * Written by Nicholas Cercos
@@ -17,27 +16,14 @@ import java.awt.image.BufferedImage;
  */
 public class MenuState extends State {
 
-	private BufferedImage logoImg;
-	private BufferedImage authorImg;
-
-	private final int LOGO_WIDTH, LOGO_HEIGHT, AUTHOR_WIDTH, AUTHOR_HEIGHT;
-	private final double amplitude, frequency, logoY;
-	private double time;
+	private Sprite logoSprite, authorSprite;
+	private final Sprite.Bounce logoBounce;
 
 	public MenuState(Game game) {
 		super(game);
 		loadTextSprites();
 		registerButtons();
-
-		LOGO_WIDTH = Game.scale(logoImg.getWidth());
-		LOGO_HEIGHT = Game.scale(logoImg.getHeight());
-		AUTHOR_WIDTH = Game.scale(authorImg.getWidth());
-		AUTHOR_HEIGHT = Game.scale(authorImg.getHeight());
-
-		time = 0;
-		amplitude = 15;
-		frequency = 0.125;
-		logoY = Game.GAME_HEIGHT / 4.0;
+		logoBounce = new Sprite.Bounce(Game.GAME_HEIGHT / 4);
 	}
 
 	/**
@@ -45,8 +31,8 @@ public class MenuState extends State {
 	 */
 	private void loadTextSprites() {
 		final String PATH = "ui/text/";
-		logoImg = Game.loadSprite(PATH + "title.png");
-		authorImg = Game.loadSprite(PATH + "author.png");
+		logoSprite = new Sprite(PATH + "title.png");
+		authorSprite = new Sprite(PATH + "author.png");
 	}
 
 	/**
@@ -59,17 +45,17 @@ public class MenuState extends State {
 
 	@Override
 	public void update() {
-		time += frequency;
+		logoBounce.update();
 	}
 
 	@Override
 	public void onDraw(Graphics g) {
 		game.getWorldManager().drawBackground(g);
-		int bounceY = (int) (logoY + (int) (Math.sin(time) * amplitude));
-		game.getBird().teleport(new Location(Game.GAME_WIDTH / 2.0 + Game.scale(42), bounceY + 10));
-		g.drawImage(logoImg, ((Game.GAME_WIDTH / 2) - (LOGO_WIDTH / 2)) - (Game.scale(10)), bounceY , LOGO_WIDTH, LOGO_HEIGHT, null);
-		g.drawImage(authorImg, (Game.GAME_WIDTH / 2) - (AUTHOR_WIDTH / 2), Game.GAME_HEIGHT - Game.scale(47),
-				AUTHOR_WIDTH, AUTHOR_HEIGHT, null);
+		game.getBird().teleport(new Location(Game.GAME_WIDTH / 2.0 + Game.scale(42), logoBounce.getBounceY() + Game.scale(2.5)));
+		g.drawImage(logoSprite.getImg(), ((Game.GAME_WIDTH / 2) - (logoSprite.getWidth() / 2)) - (Game.scale(10)), logoBounce.getBounceY(),
+				logoSprite.getWidth(), logoSprite.getHeight(), null);
+		g.drawImage(authorSprite.getImg(), (Game.GAME_WIDTH / 2) - (authorSprite.getWidth() / 2), Game.GAME_HEIGHT - Game.scale(47),
+				authorSprite.getWidth(), authorSprite.getHeight(), null);
 		game.getBird().draw(g);
 	}
 

@@ -4,13 +4,14 @@ import game.Game;
 import ui.buttons.PauseButton;
 import ui.buttons.UnpauseButton;
 import utils.Location;
+import utils.Sprite;
+import utils.Transition;
 import world.Bird;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
 /*
  * Written by Nicholas Cercos
@@ -18,37 +19,35 @@ import java.awt.image.BufferedImage;
  */
 public class PlayingState extends State {
 
-	private BufferedImage readyImg, instructionImg, overImg;
-	private final int READY_WIDTH, READY_HEIGHT, INSTRUCTION_WIDTH, INSTRUCTION_HEIGHT, OVER_WIDTH, OVER_HEIGHT;
+	private Sprite readyTextSprite, overTextSprite, instructionSprite, resultSprite;
 	private boolean ready, paused, gameOver;
 	private PauseButton pauseButton;
 	private UnpauseButton unpauseButton;
 	private final Timer pipeTimer;
+	private final Sprite.Bounce readyBounce;
+	private final Transition overTransition, resultTransition;
+	private int transitionWaitTime;
 
 	public PlayingState(Game game) {
 		super(game);
 		loadTextSprites();
 		initializeButtons();
 		updatePauseButton();
-
-		READY_WIDTH = Game.scale(readyImg.getWidth());
-		READY_HEIGHT = Game.scale(readyImg.getHeight());
-		INSTRUCTION_WIDTH = Game.scale(instructionImg.getWidth());
-		INSTRUCTION_HEIGHT = Game.scale(instructionImg.getHeight());
-		OVER_WIDTH = Game.scale(overImg.getWidth());
-		OVER_HEIGHT = Game.scale(overImg.getHeight());
-
 		pipeTimer = new Timer(Game.scale(437), _ -> game.getWorldManager().placePipes());
+		readyBounce = new Sprite.Bounce(Game.scale(100));
+		overTransition = new Transition(Game.GAME_HEIGHT / 4 - Game.scale(15), Game.GAME_HEIGHT / 4, 3, false);
+		resultTransition = new Transition(Game.GAME_HEIGHT, (Game.GAME_HEIGHT / 4) + Game.scale(23), 20, true);
+		transitionWaitTime = Game.scale(13);
 	}
 
 	/**
 	 * Loads all user-interface menu-related texts.
 	 */
 	private void loadTextSprites() {
-		final String PATH = "ui/text/";
-		readyImg = Game.loadSprite(PATH + "get_ready.png");
-		overImg = Game.loadSprite(PATH + "game_over.png");
-		instructionImg = Game.loadSprite("ui/instruction.png");
+		readyTextSprite = new Sprite("ui/text/get_ready.png");
+		overTextSprite = new Sprite("ui/text/game_over.png");
+		instructionSprite = new Sprite("ui/instruction.png");
+		resultSprite = new Sprite("ui/results.png");
 	}
 
 	/**
@@ -105,12 +104,22 @@ public class PlayingState extends State {
 		Bird bird = game.getBird();
 
 		if(!ready) {
-			bird.teleport(new Location(Game.scale(35), Game.scale(100)));
+			readyBounce.update();
+			bird.teleport(new Location(Game.scale(35), readyBounce.getBounceY()));
 			return;
 		}
 
 		bird.move();
-		if(gameOver)return;
+
+		if(gameOver) {
+			transitionWaitTime -= Game.scale(1);
+			if(transitionWaitTime > 0)return;
+			overTransition.update();
+			resultTransition.update();
+			return;
+		}
+
+
 		if(game.getWorldManager().movePipes() || bird.isDead())
 			gameOver = true;
 	}
@@ -120,11 +129,20 @@ public class PlayingState extends State {
 		game.getWorldManager().drawBackground(g);
 
 		if(!ready) {
-			g.drawImage(readyImg, (Game.GAME_WIDTH / 2) - (READY_WIDTH / 2), (Game.GAME_HEIGHT / 4), READY_WIDTH, READY_HEIGHT, null);
-			g.drawImage(instructionImg, (Game.GAME_WIDTH / 2) - (INSTRUCTION_WIDTH / 2) + Game.scale(8), (Game.GAME_HEIGHT / 4) + Game.scale(49), INSTRUCTION_WIDTH, INSTRUCTION_HEIGHT, null);
+			g.drawImage(readyTextSprite.getImg(), (Game.GAME_WIDTH / 2) - (readyTextSprite.getWidth() / 2),
+					(Game.GAME_HEIGHT / 4), readyTextSprite.getWidth(), readyTextSprite.getHeight(), null);
+			g.drawImage(instructionSprite.getImg(), (Game.GAME_WIDTH / 2) - (instructionSprite.getWidth() / 2) + Game.scale(8),
+					(Game.GAME_HEIGHT / 4) + Game.scale(49), instructionSprite.getWidth(), instructionSprite.getHeight(), null);
 		}
 
 		game.getBird().draw(g);
+
+		if(gameOver && transitionWaitTime < 0) {
+			g.drawImage(overTextSprite.getImg(), (Game.GAME_WIDTH / 2) - (overTextSprite.getWidth() / 2), overTransition.getY(),
+					overTextSprite.getWidth(), overTextSprite.getHeight(), null);
+			if(overTransition.isComplete()) g.drawImage(resultSprite.getImg(), (Game.GAME_WIDTH / 2) - (resultSprite.getWidth() / 2), resultTransition.getY(),
+					resultSprite.getWidth(), resultSprite.getHeight(), null);
+		}
 	}
 
 	@Override
@@ -132,7 +150,7 @@ public class PlayingState extends State {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(e.getKeyCode() != KeyEvent.VK_SPACE || gameOver)return;
+		if(e.getKeyCode() != KeyEvent.VK_SPACE || gameOver || paused)return;
 		if(!ready) {
 			ready = true;
 			pipeTimer.start();

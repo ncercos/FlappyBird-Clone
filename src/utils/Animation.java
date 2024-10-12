@@ -73,10 +73,7 @@ public class Animation {
 		return images[current];
 	}
 
-	/**
-	 * @return The default sprite for still frame.
-	 */
-	public Image getStaticImage() {
-		return images != null ? images[0] : null;
+	public void setCurrent(int current) {
+		this.current = current;
 	}
 }

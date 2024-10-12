@@ -1,6 +1,7 @@
 package world;
 
 import game.Game;
+import game.states.PlayingState;
 import utils.Animation;
 import utils.Hitbox;
 
@@ -17,6 +18,7 @@ public class Bird extends Hitbox {
 	private static final int BIRD_HEIGHT = 24;
 	private static final double GRAVITY = 0.5 * Game.GAME_SCALE;
 	private static final double MAX_TILT = Math.toRadians(8) * Game.GAME_SCALE;
+	private static final double DEATH_TILT = Math.toRadians(-90);
 
 	private final Game game;
 	private final Animation animation;
@@ -37,15 +39,20 @@ public class Bird extends Hitbox {
 	public void draw(Graphics g) {
 		super.draw(g);
 
-		Graphics2D g2d = (Graphics2D)g;
-		double tilt = Math.max(-MAX_TILT, Math.min(MAX_TILT, vy * 0.1));
+		PlayingState state = game.getPlayingState();
 
-		g2d.translate((int) x + width / 2, (int) y + height / 2);
-		g2d.rotate(tilt);
-		g2d.drawImage(animation.getCurrentImage(game.getPlayingState()), -width / 2, -height / 2, width, height, null);
+		if(state != null) {
+			Graphics2D g2d = (Graphics2D) g;
+			double tilt = Math.max(state.isGameOver() ? -DEATH_TILT : -MAX_TILT, Math.min(dead ? DEATH_TILT : MAX_TILT, vy * 0.1));
+			if (state.isGameOver()) animation.setCurrent(1);
 
-		g2d.rotate(-tilt);
-		g2d.translate(-(int) x - width / 2, -(int) y - height / 2);
+			g2d.translate((int) x + width / 2, (int) y + height / 2);
+			g2d.rotate(tilt);
+			g2d.drawImage(animation.getCurrentImage(state), -width / 2, -height / 2, width, height, null);
+
+			g2d.rotate(-tilt);
+			g2d.translate(-(int) x - width / 2, -(int) y - height / 2);
+		} else g.drawImage(animation.getCurrentImage(null), (int) x, (int) y, width, height, null);
 	}
 
 	/**
