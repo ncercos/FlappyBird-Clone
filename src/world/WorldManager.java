@@ -82,9 +82,9 @@ public class WorldManager {
 			pipe.move();
 
 			if(pipe.overlaps(game.getBird())) return true;
-			if(!pipe.hasPassed() && game.getBird().getX() > pipe.getX() + pipe.getWidth()) {
+			if(!pipe.hasPassed() && game.getBird().getX() > (pipe.getX() + pipe.getWidth() / 2.0)) {
 				pipe.passed();
-				// TODO: Increase score
+				game.getPlayingState().getScore().increase();
 			}
 		}
 		return false;

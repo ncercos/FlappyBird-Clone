@@ -1,6 +1,7 @@
 package game.states;
 
 import game.Game;
+import ui.Score;
 import ui.buttons.PauseButton;
 import ui.buttons.UnpauseButton;
 import utils.Location;
@@ -27,17 +28,19 @@ public class PlayingState extends State {
 	private final Sprite.Bounce readyBounce;
 	private final Transition overTransition, resultTransition;
 	private int transitionWaitTime;
+	private final Score score;
 
 	public PlayingState(Game game) {
 		super(game);
 		loadTextSprites();
 		initializeButtons();
 		updatePauseButton();
-		pipeTimer = new Timer(Game.scale(437), _ -> game.getWorldManager().placePipes());
+		pipeTimer = new Timer(1700, _ -> game.getWorldManager().placePipes());
 		readyBounce = new Sprite.Bounce(Game.scale(100));
 		overTransition = new Transition(Game.GAME_HEIGHT / 4 - Game.scale(15), Game.GAME_HEIGHT / 4, 3, false);
 		resultTransition = new Transition(Game.GAME_HEIGHT, (Game.GAME_HEIGHT / 4) + Game.scale(23), 20, true);
 		transitionWaitTime = Game.scale(13);
+		score = new Score();
 	}
 
 	/**
@@ -66,6 +69,8 @@ public class PlayingState extends State {
 		if(paused) {
 			buttons.remove(pauseButton);
 			buttons.add(unpauseButton);
+		} else if(gameOver) {
+			buttons.clear();
 		} else {
 			buttons.remove(unpauseButton);
 			buttons.add(pauseButton);
@@ -98,6 +103,10 @@ public class PlayingState extends State {
 		return gameOver;
 	}
 
+	public Score getScore() {
+		return score;
+	}
+
 	@Override
 	public void update() {
 		if(paused)return;
@@ -120,13 +129,17 @@ public class PlayingState extends State {
 		}
 
 
-		if(game.getWorldManager().movePipes() || bird.isDead())
+		if(game.getWorldManager().movePipes() || bird.isDead()) {
 			gameOver = true;
+			updatePauseButton();
+		}
 	}
 
 	@Override
 	public void onDraw(Graphics g) {
 		game.getWorldManager().drawBackground(g);
+
+		score.draw(g);
 
 		if(!ready) {
 			g.drawImage(readyTextSprite.getImg(), (Game.GAME_WIDTH / 2) - (readyTextSprite.getWidth() / 2),

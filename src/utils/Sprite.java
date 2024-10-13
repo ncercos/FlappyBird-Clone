@@ -3,6 +3,7 @@ package utils;
 import game.Game;
 
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 
 /*
  * Written by Nicholas Cercos
@@ -13,11 +14,14 @@ public class Sprite {
 	private final BufferedImage img;
 	private final int width, height;
 
-	public Sprite(String path) {
-		img = Game.loadSprite(path);
-		assert img != null;
+	public Sprite(BufferedImage img) {
+		this.img = img;
 		width = Game.scale(img.getWidth());
 		height = Game.scale(img.getHeight());
+	}
+
+	public Sprite(String path) {
+		this(Objects.requireNonNull(Game.loadSprite(path)));
 	}
 
 	public BufferedImage getImg() {
@@ -48,10 +52,7 @@ public class Sprite {
 		 * Generic bounce used for logo and ready state.
 		 */
 		public Bounce(int y) {
-			this.y = y;
-			amplitude = 15;
-			frequency = 0.125;
-			time = 0;
+			this(y, 15, 0.125);
 		}
 
 		/**

@@ -9,12 +9,12 @@ import game.Game;
 public class Transition {
 
 	private int y;
-	private final int endY, increment;
+	private final int endY, speed;
 	private final boolean ascending;
 
-	public Transition(int startY, int endY, int increment, boolean ascending) {
+	public Transition(int startY, int endY, int speed, boolean ascending) {
 		this.endY = endY;
-		this.increment = Game.scale(increment);
+		this.speed = Game.scale(speed);
 		this.ascending = ascending;
 		y = startY;
 	}
@@ -23,8 +23,8 @@ public class Transition {
 	 * Update the location for the transition.
 	 */
 	public void update() {
-		if(ascending) y -= increment;
-		else y += increment;
+		if(ascending) y -= speed;
+		else y += speed;
 		if(isComplete()) y = endY;
 	}
 
