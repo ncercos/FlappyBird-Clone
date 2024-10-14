@@ -13,6 +13,17 @@ public class Location {
 		this.y = y;
 	}
 
+	/**
+	 * Update x and y coordinates.
+	 *
+	 * @param x The new x-location.
+	 * @param y The new y-location.
+	 */
+	public void update(double x, double y) {
+		setX(x);
+		setY(y);
+	}
+
 	public double getX() {
 		return x;
 	}

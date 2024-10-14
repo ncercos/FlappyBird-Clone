@@ -50,11 +50,11 @@ public class Bird extends Hitbox {
 
 			g2d.translate((int) x + width / 2, (int) y + height / 2);
 			g2d.rotate(tilt);
-			g2d.drawImage(animation.getCurrentImage(state), -width / 2, -height / 2, width, height, null);
+			g2d.drawImage(animation.getCurrentImage(state, false), -width / 2, -height / 2, width, height, null);
 
 			g2d.rotate(-tilt);
 			g2d.translate(-(int) x - width / 2, -(int) y - height / 2);
-		} else g.drawImage(animation.getCurrentImage(null), (int) x, (int) y, width, height, null);
+		} else g.drawImage(animation.getCurrentImage(null, false), (int) x, (int) y, width, height, null);
 	}
 
 	/**

@@ -2,6 +2,7 @@ package ui;
 
 import audio.Audio;
 import game.Game;
+import utils.Location;
 import utils.Sprite;
 
 import java.awt.*;
@@ -19,15 +20,47 @@ public class Score {
 	private final int NUM_SPRITE_WIDTH = 7;
 	private final int NUM_GAP = Game.scale(1);
 	private final Map<Integer, Sprite> digits;
+	private final Sprite newLabel;
 
 	private double current;
 	private int currentHighest, allTimeHighest;
+	private boolean brokeRecord;
 
 	public Score(Game game) {
 		this.game = game;
+		newLabel = new Sprite("ui/new.png");
 		digits = new HashMap<>();
 		setDigits(loadImages());
 		reset();
+	}
+
+	/**
+	 * Draws score using custom sprites at a given location.
+	 *
+	 * @param g        The graphics context.
+	 * @param score    The score value to be drawn.
+	 * @param location The location to draw score.
+	 */
+	public void draw(Graphics g, int score, Location location) {
+		String value = String.valueOf(score);
+		char[] chars = value.toCharArray();
+
+		for(char c : chars) {
+			int digit = Character.getNumericValue(c);
+			Sprite sprite = digits.get(digit);
+			g.drawImage(sprite.getImg(), (int) location.getX(), (int) location.getY(), sprite.getWidth(), sprite.getHeight(), null);
+			location.setX(location.getX() + (Game.scale(NUM_SPRITE_WIDTH) + NUM_GAP));
+		}
+	}
+
+	/**
+	 * Draws current score at a given location.
+	 *
+	 * @param g        The graphics context.
+	 * @param location The location to draw score.
+	 */
+	public void draw(Graphics g, Location location) {
+		draw(g, (int)current, location);
 	}
 
 	/**
@@ -36,18 +69,19 @@ public class Score {
 	 * @param g The graphics context.
 	 */
 	public void draw(Graphics g) {
-		String score = String.valueOf((int)current);
-		final int WIDTH = (score.length() * Game.scale(NUM_SPRITE_WIDTH)) + (NUM_GAP * (score.length() - 1));
-		char[] chars = score.toCharArray();
+		draw(g, (int)current, new Location((Game.GAME_WIDTH / 2.0) - (getDrawWidth() / 2.0), Game.scale(10)));
+	}
 
-		int x = (Game.GAME_WIDTH / 2) - (WIDTH / 2);
+	/**
+	 * @return The total width of a score visual.
+	 */
+	public int getDrawWidth(int score) {
+		String value = String.valueOf(score);
+		return (value.length() * Game.scale(NUM_SPRITE_WIDTH)) + (NUM_GAP * (value.length() - 1));
+	}
 
-		for(char c : chars) {
-			int digit = Character.getNumericValue(c);
-			Sprite sprite = digits.get(digit);
-			g.drawImage(sprite.getImg(), x, Game.scale(10), sprite.getWidth(), sprite.getHeight(), null);
-			x += (Game.scale(NUM_SPRITE_WIDTH) + NUM_GAP);
-		}
+	public int getDrawWidth() {
+		return getDrawWidth((int)current);
 	}
 
 	/**
@@ -80,8 +114,10 @@ public class Score {
 	 * Updates all-time highest to current round highest (if exceeded).
 	 */
 	public void updateAllTimeHighest() {
-		if(currentHighest > allTimeHighest)
+		if(currentHighest > allTimeHighest) {
 			allTimeHighest = currentHighest;
+			brokeRecord = true;
+		}
 	}
 
 	/**
@@ -89,6 +125,7 @@ public class Score {
 	 */
 	public void reset() {
 		current = 0;
+		brokeRecord = false;
 	}
 
 	/**
@@ -116,11 +153,19 @@ public class Score {
 		return imgs;
 	}
 
-	public int getCurrentHighest() {
-		return currentHighest;
-	}
-
 	public int getAllTimeHighest() {
 		return allTimeHighest;
+	}
+
+	public double getCurrent() {
+		return current;
+	}
+
+	public boolean isRecordBroken() {
+		return brokeRecord;
+	}
+
+	public Sprite getNewLabel() {
+		return newLabel;
 	}
 }

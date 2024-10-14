@@ -67,7 +67,6 @@ public class WorldManager {
 		if(game.getPlayingState() != null && game.getPlayingState().isReady()) drawPipes(g);
 		g.drawImage(groundImg, groundX, GROUND_DRAW_HEIGHT, GROUND_WIDTH, GROUND_HEIGHT, null);
 		g.drawImage(groundImg, groundX + GROUND_WIDTH, GROUND_DRAW_HEIGHT, GROUND_WIDTH, GROUND_HEIGHT, null);
-		groundHB.draw(g);
 	}
 
 	/**
@@ -85,7 +84,6 @@ public class WorldManager {
 		int openingSpace = Game.GAME_HEIGHT / 5;
 		bottomPipe.setY(topPipe.getY() + bottomPipe.getHeight() + openingSpace);
 		pipes.add(bottomPipe);
-		System.out.println("placing pipe");
 	}
 
 	/**

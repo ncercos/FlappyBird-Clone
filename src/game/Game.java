@@ -38,7 +38,6 @@ public class Game extends JPanel implements ActionListener {
 	// Screen
 	private Image scene;
 	private Graphics pen;
-	private Hitbox screenHB;
 
 	// States
 	private final Timer timer;
@@ -93,7 +92,6 @@ public class Game extends JPanel implements ActionListener {
 		menuState = new MenuState(this);
 		playingState = new PlayingState(this);
 		timer = new Timer(1000/60, this);
-		screenHB = new Hitbox(0, 0, 144, 256);
 		loadUserInterfaceSprites();
 		requestFocus();
 		init();
@@ -233,9 +231,5 @@ public class Game extends JPanel implements ActionListener {
 
 	public Sprite getResultSprite() {
 		return resultSprite;
-	}
-
-	public Hitbox getScreenHB() {
-		return screenHB;
 	}
 }

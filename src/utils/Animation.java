@@ -18,6 +18,7 @@ public class Animation {
 	private Image[] images;
 	private final int spriteWidth, spriteHeight, duration;
 	private int current, delay;
+	private boolean cycleComplete;
 
 	public Animation(String name, int spriteWidth, int spriteHeight, int duration) {
 		this.spriteWidth = spriteWidth;
@@ -45,6 +46,13 @@ public class Animation {
 	}
 
 	/**
+	 * Resets cycle counter.
+	 */
+	public void restartCycle() {
+		cycleComplete = false;
+	}
+
+	/**
 	 * Loads all the frames for an animation.
 	 *
 	 * @param name The filePath for the animation sprite.
@@ -63,17 +71,23 @@ public class Animation {
 	/**
 	 * @return The current image within the animation.
 	 */
-	public Image getCurrentImage(PlayingState state) {
+	public Image getCurrentImage(PlayingState state, boolean persist) {
 		if(images == null) return null;
-		if(state == null || (!state.isPaused() && !state.isGameOver())) delay--;
+		if(state == null || persist || (!state.isPaused() && !state.isGameOver())) delay--;
 		if(delay == 0) {
 			current++;
-			reset(current == images.length);
+			boolean end = current == images.length;
+			if(end) cycleComplete = true;
+			reset(end);
 		}
 		return images[current];
 	}
 
 	public void setCurrent(int current) {
 		this.current = current;
+	}
+
+	public boolean isCycleComplete() {
+		return cycleComplete;
 	}
 }

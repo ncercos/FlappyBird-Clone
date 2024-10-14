@@ -2,17 +2,17 @@ package game.states;
 
 import audio.Audio;
 import game.Game;
+import ui.Medal;
+import ui.Score;
 import ui.buttons.*;
-import utils.Delay;
-import utils.Location;
-import utils.Sprite;
-import utils.Transition;
+import utils.*;
 import world.Bird;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.ThreadLocalRandom;
 
 /*
  * Written by Nicholas Cercos
@@ -22,21 +22,62 @@ public class PlayingState extends State {
 
 	private boolean ready, paused, gameOver;
 	private PauseButton pauseButton, unpauseButton;
-	private final Timer pipeTimer;
+	private final Timer pipeTimer, scoreTimer;
 	private final Sprite.Bounce readyBounce;
 	private final Transition overTransition, resultTransition;
 	private final Delay transitionDelay, deathDelay;
+	private int currentScore, currentHighScore;
+	private final Score score;
+	private boolean resultsComplete;
+	private Medal medal;
+	private final Animation sparkleAni;
+	private Location sparkleLoc;
 
 	public PlayingState(Game game) {
 		super(game);
 		initPauseButton();
 		updateButtons();
 		pipeTimer = new Timer(1350, _ -> game.getWorldManager().placePipes());
+		scoreTimer = new Timer(50, _ -> updateScoreResults());
 		readyBounce = new Sprite.Bounce(Game.scale(100));
 		overTransition = new Transition(Game.GAME_HEIGHT / 4 - Game.scale(15), Game.GAME_HEIGHT / 4, 3, false);
 		resultTransition = new Transition(Game.GAME_HEIGHT, (Game.GAME_HEIGHT / 4) + Game.scale(23), 20, true);
 		transitionDelay = new Delay(13);
 		deathDelay = new Delay(40);
+		score = game.getScore();
+		sparkleAni = new Animation("ui/sparkle", 5, 5, 4);
+	}
+
+	/**
+	 * Update location of medal sparkle.
+	 */
+	private void updateSparkleLocation() {
+		if(sparkleLoc == null || sparkleAni.isCycleComplete()) {
+			sparkleAni.restartCycle();
+			int x = Game.scale(ThreadLocalRandom.current().nextInt(29, 47));
+			int y = Game.scale(ThreadLocalRandom.current().nextInt(108, 125));
+			if (sparkleLoc == null) sparkleLoc = new Location(x, y);
+			else sparkleLoc.update(x, y);
+		}
+	}
+
+	/**
+	 * Update score when displaying results.
+	 */
+	private void updateScoreResults() {
+		if(resultsComplete)return;
+		if(currentScore < score.getCurrent())
+			currentScore++;
+
+		if(currentHighScore < score.getAllTimeHighest())
+			currentHighScore++;
+
+		if((currentScore == score.getCurrent()) && (currentHighScore == score.getAllTimeHighest())) {
+			resultsComplete = true;
+			medal = Medal.getMedal(currentScore);
+			updateButtons();
+			scoreTimer.stop();
+		}
 	}
 
 	/**
@@ -76,10 +117,11 @@ public class PlayingState extends State {
 		if(paused) {
 			buttons.remove(pauseButton);
 			buttons.add(unpauseButton);
-		} else if(gameOver) {
-			buttons.clear();
+		} else if(resultsComplete)
 			displayEndButtons();
-		} else {
+		else if(gameOver)
+			buttons.clear();
+		else {
 			buttons.remove(unpauseButton);
 			buttons.add(pauseButton);
 		}
@@ -135,16 +177,19 @@ public class PlayingState extends State {
 				game.getAudioManager().playSound(Audio.DIE);
 				deathDelay.deactivate();
 			}
+
+			if(resultTransition.isComplete() && !scoreTimer.isRunning())
+				scoreTimer.start();
 			return;
 		}
-
 
 		if(game.getWorldManager().movePipes() || bird.isDead()) {
 			game.getAudioManager().playSound(Audio.HIT);
 			gameOver = true;
-			game.getScore().updateAllTimeHighest();
+			score.updateAllTimeHighest();
 			updateButtons();
 			pipeTimer.stop();
+			if(!score.isRecordBroken()) currentHighScore = score.getAllTimeHighest();
 		}
 	}
 
@@ -152,7 +197,7 @@ public class PlayingState extends State {
 	public void onDraw(Graphics g) {
 		game.getWorldManager().drawBackground(g);
 
-		if(!gameOver) game.getScore().draw(g);
+		if(!gameOver) score.draw(g);
 
 		if(!ready) {
 			g.drawImage(game.getReadyTextSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getReadyTextSprite().getWidth() / 2),
@@ -166,8 +211,26 @@ public class PlayingState extends State {
 		if(gameOver && transitionDelay.isComplete()) {
 			g.drawImage(game.getOverTextSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getOverTextSprite().getWidth() / 2), overTransition.getY(),
 					game.getOverTextSprite().getWidth(), game.getOverTextSprite().getHeight(), null);
-			if(overTransition.isComplete()) g.drawImage(game.getResultSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getResultSprite().getWidth() / 2), resultTransition.getY(),
-					game.getResultSprite().getWidth(), game.getResultSprite().getHeight(), null);
+			if(overTransition.isComplete()) {
+				g.drawImage(game.getResultSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getResultSprite().getWidth() / 2), resultTransition.getY(),
+						game.getResultSprite().getWidth(), game.getResultSprite().getHeight(), null);
+
+				int scoreX = Game.scale(118);
+				score.draw(g, currentScore, new Location(scoreX - score.getDrawWidth(currentScore), resultTransition.getY() + Game.scale(17)));
+				score.draw(g, currentHighScore, new Location(scoreX - score.getDrawWidth(currentHighScore),
+						resultTransition.getY() + Game.scale(38)));
+
+				if(resultsComplete) {
+					if (score.isRecordBroken())
+						g.drawImage(score.getNewLabel().getImg(), Game.scale(83), Game.scale(116), score.getNewLabel().getWidth(), score.getNewLabel().getHeight(), null);
+					if(medal != null) {
+						g.drawImage(medal.getSprite().getImg(), Game.scale(28.5), Game.scale(108), medal.getSprite().getWidth(), medal.getSprite().getHeight(), null);
+						updateSparkleLocation();
+						Image sparkle = sparkleAni.getCurrentImage(this, true);
+						g.drawImage(sparkle, (int) sparkleLoc.getX(), (int) sparkleLoc.getY(), Game.scale(sparkle.getWidth(null)), Game.scale(sparkle.getHeight(null)), null);
+					}
+				}
+			}
 		}
 	}
 
