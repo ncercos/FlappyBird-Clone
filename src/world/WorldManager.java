@@ -33,7 +33,7 @@ public class WorldManager {
 		GROUND_HEIGHT = Game.scale(groundImg.getHeight());
 		GROUND_DRAW_HEIGHT = Game.GAME_HEIGHT - GROUND_HEIGHT;
 		groundX = 0;
-		groundSpeed = Game.scale(1.75);
+		groundSpeed = Game.scale(1.1);
 		groundHB = new Hitbox(0, Game.scale(200), 144, 60);
 
 		pipes = new ArrayList<>();

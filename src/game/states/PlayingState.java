@@ -37,15 +37,15 @@ public class PlayingState extends State {
 		super(game);
 		initPauseButton();
 		updateButtons();
-		pipeTimer = new Timer(1350, _ -> game.getWorldManager().placePipes());
-		scoreTimer = new Timer(50, _ -> updateScoreResults());
+		pipeTimer = new Timer(1300, _ -> game.getWorldManager().placePipes());
+		scoreTimer = new Timer(35, _ -> updateScoreResults());
 		readyBounce = new Sprite.Bounce(Game.scale(100));
-		overTransition = new Transition(Game.GAME_HEIGHT / 4 - Game.scale(15), Game.GAME_HEIGHT / 4, 3, false);
-		resultTransition = new Transition(Game.GAME_HEIGHT, (Game.GAME_HEIGHT / 4) + Game.scale(23), 20, true);
-		transitionDelay = new Delay(13);
-		deathDelay = new Delay(40);
+		overTransition = new Transition(Game.GAME_HEIGHT / 4 - Game.scale(15), Game.GAME_HEIGHT / 4, 1, false);
+		resultTransition = new Transition(Game.GAME_HEIGHT, (Game.GAME_HEIGHT / 4) + Game.scale(23), 8, true);
+		transitionDelay = new Delay(15);
+		deathDelay = new Delay(45);
 		score = game.getScore();
-		sparkleAni = new Animation("ui/sparkle", 5, 5, 4);
+		sparkleAni = new Animation("ui/sparkle", 5, 5, 7);
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class PlayingState extends State {
 		if(gameOver) {
 			deathDelay.update();
 			transitionDelay.update();
-			if(!transitionDelay.isComplete())return;
+			if(!bird.isDead())return;
 			overTransition.update();
 			resultTransition.update();
 
@@ -208,7 +208,7 @@ public class PlayingState extends State {
 
 		game.getBird().draw(g);
 
-		if(gameOver && transitionDelay.isComplete()) {
+		if(gameOver && game.getBird().isDead()) {
 			g.drawImage(game.getOverTextSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getOverTextSprite().getWidth() / 2), overTransition.getY(),
 					game.getOverTextSprite().getWidth(), game.getOverTextSprite().getHeight(), null);
 			if(overTransition.isComplete()) {

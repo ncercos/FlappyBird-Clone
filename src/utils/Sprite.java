@@ -52,7 +52,7 @@ public class Sprite {
 		 * Generic bounce used for logo and ready state.
 		 */
 		public Bounce(int y) {
-			this(y, 15, 0.125);
+			this(y, 11, 0.11);
 		}
 
 		/**

@@ -7,7 +7,6 @@ import game.states.State;
 import inputs.KeyboardInputs;
 import inputs.MouseInputs;
 import ui.Score;
-import utils.Hitbox;
 import utils.Sprite;
 import world.Bird;
 import world.WorldManager;
@@ -15,8 +14,6 @@ import world.WorldManager;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
@@ -27,7 +24,7 @@ import java.io.IOException;
  * Written by Nicholas Cercos
  * Created on Sep 30 2024
  */
-public class Game extends JPanel implements ActionListener {
+public class Game extends JPanel implements Runnable {
 
 	// Utils
 	public final static float GAME_SCALE = 4f;
@@ -40,7 +37,6 @@ public class Game extends JPanel implements ActionListener {
 	private Graphics pen;
 
 	// States
-	private final Timer timer;
 	private final MenuState menuState;
 	private PlayingState playingState;
 
@@ -91,7 +87,6 @@ public class Game extends JPanel implements ActionListener {
 		score = new Score(this);
 		menuState = new MenuState(this);
 		playingState = new PlayingState(this);
-		timer = new Timer(1000/60, this);
 		loadUserInterfaceSprites();
 		requestFocus();
 		init();
@@ -101,7 +96,7 @@ public class Game extends JPanel implements ActionListener {
 	 * Initializes the game loop.
 	 */
 	private void init() {
-		timer.start();
+		new Thread(this).start();
 	}
 
 	/**
@@ -156,9 +151,16 @@ public class Game extends JPanel implements ActionListener {
 	 * The game loop.
 	 */
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		update();
-		repaint();
+	public void run() {
+		while(true) {
+
+			update();
+			repaint();
+
+			try {
+				Thread.sleep(15);
+			} catch (InterruptedException ignored) {}
+		}
 	}
 
 	/**

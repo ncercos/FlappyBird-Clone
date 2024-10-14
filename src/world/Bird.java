@@ -17,7 +17,7 @@ public class Bird extends Hitbox {
 
 	private static final int BIRD_WIDTH = 34;
 	private static final int BIRD_HEIGHT = 24;
-	private static final double GRAVITY = 0.5 * Game.GAME_SCALE;
+	private static final double GRAVITY = 0.22 * Game.GAME_SCALE;
 	private static final double MAX_TILT = Math.toRadians(8) * Game.GAME_SCALE;
 	private static final double DEATH_TILT = Math.toRadians(-90);
 
@@ -86,7 +86,7 @@ public class Bird extends Hitbox {
 	 * Jump upwards.
 	 */
 	public void jump() {
-		vy = Game.scale(-5);
+		vy = Game.scale(-3.5);
 		game.getAudioManager().playSound(Audio.WING);
 	}
 
@@ -94,7 +94,7 @@ public class Bird extends Hitbox {
 	 * Randomly chooses the bird's color: yellow, red, or blue.
 	 */
 	public void changeColor() {
-		animation = new Animation("birds/" + getBirdColor(), BIRD_WIDTH, BIRD_HEIGHT, 4);
+		animation = new Animation("birds/" + getBirdColor(), BIRD_WIDTH, BIRD_HEIGHT, 7);
 	}
 
 	/**
