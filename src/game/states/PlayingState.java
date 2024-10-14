@@ -1,9 +1,10 @@
 package game.states;
 
+import audio.Audio;
 import game.Game;
 import ui.Score;
 import ui.buttons.PauseButton;
-import ui.buttons.UnpauseButton;
+import utils.Delay;
 import utils.Location;
 import utils.Sprite;
 import utils.Transition;
@@ -22,13 +23,12 @@ public class PlayingState extends State {
 
 	private Sprite readyTextSprite, overTextSprite, instructionSprite, resultSprite;
 	private boolean ready, paused, gameOver;
-	private PauseButton pauseButton;
-	private UnpauseButton unpauseButton;
+	private PauseButton pauseButton, unpauseButton;
 	private final Timer pipeTimer;
 	private final Sprite.Bounce readyBounce;
 	private final Transition overTransition, resultTransition;
-	private int transitionWaitTime;
 	private final Score score;
+	private final Delay transitionDelay, deathDelay;
 
 	public PlayingState(Game game) {
 		super(game);
@@ -39,8 +39,9 @@ public class PlayingState extends State {
 		readyBounce = new Sprite.Bounce(Game.scale(100));
 		overTransition = new Transition(Game.GAME_HEIGHT / 4 - Game.scale(15), Game.GAME_HEIGHT / 4, 3, false);
 		resultTransition = new Transition(Game.GAME_HEIGHT, (Game.GAME_HEIGHT / 4) + Game.scale(23), 20, true);
-		transitionWaitTime = Game.scale(13);
-		score = new Score();
+		transitionDelay = new Delay(13);
+		deathDelay = new Delay(40);
+		score = new Score(game);
 	}
 
 	/**
@@ -58,8 +59,8 @@ public class PlayingState extends State {
 	 */
 	private void initializeButtons() {
 		int xy = Game.scale(10);
-		pauseButton = new PauseButton(this, xy, xy);
-		unpauseButton = new UnpauseButton(this, xy, xy);
+		pauseButton = new PauseButton(this, xy, xy, true);
+		unpauseButton = new PauseButton(this, xy, xy, false);
 	}
 
 	/**
@@ -121,16 +122,24 @@ public class PlayingState extends State {
 		bird.move();
 
 		if(gameOver) {
-			transitionWaitTime -= Game.scale(1);
-			if(transitionWaitTime > 0)return;
+			deathDelay.update();
+			transitionDelay.update();
+			if(!transitionDelay.isComplete())return;
 			overTransition.update();
 			resultTransition.update();
+
+			if(deathDelay.isComplete() && deathDelay.isActive()) {
+				game.getAudioManager().playSound(Audio.DIE);
+				deathDelay.deactivate();
+			}
 			return;
 		}
 
 
 		if(game.getWorldManager().movePipes() || bird.isDead()) {
+			game.getAudioManager().playSound(Audio.HIT);
 			gameOver = true;
+			score.updateAllTimeHighest();
 			updatePauseButton();
 		}
 	}
@@ -150,7 +159,7 @@ public class PlayingState extends State {
 
 		game.getBird().draw(g);
 
-		if(gameOver && transitionWaitTime < 0) {
+		if(gameOver && transitionDelay.isComplete()) {
 			g.drawImage(overTextSprite.getImg(), (Game.GAME_WIDTH / 2) - (overTextSprite.getWidth() / 2), overTransition.getY(),
 					overTextSprite.getWidth(), overTextSprite.getHeight(), null);
 			if(overTransition.isComplete()) g.drawImage(resultSprite.getImg(), (Game.GAME_WIDTH / 2) - (resultSprite.getWidth() / 2), resultTransition.getY(),

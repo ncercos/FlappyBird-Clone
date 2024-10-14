@@ -1,5 +1,6 @@
 package ui.buttons;
 
+import audio.Audio;
 import game.GameState;
 import game.states.State;
 import ui.Button;
@@ -20,5 +21,6 @@ public class StartButton extends Button {
 	@Override
 	public void onRelease() {
 		state.setState(GameState.PLAYING);
+		state.getGame().getAudioManager().playSound(Audio.SWOOSH);
 	}
 }

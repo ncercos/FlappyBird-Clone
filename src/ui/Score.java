@@ -1,5 +1,6 @@
 package ui;
 
+import audio.Audio;
 import game.Game;
 import utils.Sprite;
 
@@ -14,13 +15,16 @@ import java.util.Map;
  */
 public class Score {
 
-	private double current;
-	private int highest;
+	private final Game game;
 	private final int NUM_SPRITE_WIDTH = 7;
 	private final int NUM_GAP = Game.scale(1);
 	private final Map<Integer, Sprite> digits;
 
-	public Score() {
+	private double current;
+	private int currentHighest, allTimeHighest;
+
+	public Score(Game game) {
+		this.game = game;
 		digits = new HashMap<>();
 		setDigits(loadImages());
 		reset();
@@ -47,11 +51,20 @@ public class Score {
 	}
 
 	/**
-	 * Increment score by one!
+	 * Increment score by half (two pipes [top/bottom] = whole number).
 	 */
 	public void increase() {
 		current += 0.5;
 		updateHighest((int)current);
+		playSfx();
+	}
+
+	/**
+	 * Play the score gain sound effect.
+	 */
+	public void playSfx() {
+		if(current % 1 == 0)
+			game.getAudioManager().playSound(Audio.SCORE);
 	}
 
 	/**
@@ -60,7 +73,15 @@ public class Score {
 	 * @param score The current score.
 	 */
 	public void updateHighest(int score) {
-		if(score > highest) highest = score;
+		if(score > currentHighest) currentHighest = score;
+	}
+
+	/**
+	 * Updates all-time highest to current round highest (if exceeded).
+	 */
+	public void updateAllTimeHighest() {
+		if(currentHighest > allTimeHighest)
+			allTimeHighest = currentHighest;
 	}
 
 	/**
@@ -93,5 +114,13 @@ public class Score {
 		for(int i = 0; i < WIDTH; i++)
 			imgs[i] = sprite.getSubimage(i * NUM_SPRITE_WIDTH, 0, NUM_SPRITE_WIDTH, 10);
 		return imgs;
+	}
+
+	public int getCurrentHighest() {
+		return currentHighest;
+	}
+
+	public int getAllTimeHighest() {
+		return allTimeHighest;
 	}
 }

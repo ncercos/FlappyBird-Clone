@@ -1,5 +1,6 @@
 package game;
 
+import audio.AudioManager;
 import game.states.MenuState;
 import game.states.PlayingState;
 import game.states.State;
@@ -43,6 +44,7 @@ public class Game extends JPanel implements ActionListener {
 	// World
 	private final Bird bird;
 	private final WorldManager worldManager;
+	private final AudioManager audioManager;
 
 	public Game() {
 		// Create game panel
@@ -77,6 +79,7 @@ public class Game extends JPanel implements ActionListener {
 
 		// Initialize game
 		worldManager = new WorldManager(this);
+		audioManager = new AudioManager();
 		bird = new Bird(this);
 		menuState = new MenuState(this);
 		playingState = new PlayingState(this);
@@ -175,5 +178,9 @@ public class Game extends JPanel implements ActionListener {
 
 	public WorldManager getWorldManager() {
 		return worldManager;
+	}
+
+	public AudioManager getAudioManager() {
+		return audioManager;
 	}
 }

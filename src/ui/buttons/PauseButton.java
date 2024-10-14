@@ -1,5 +1,6 @@
 package ui.buttons;
 
+import audio.Audio;
 import game.states.PlayingState;
 import ui.Button;
 
@@ -11,8 +12,8 @@ public class PauseButton extends Button {
 
 	private final PlayingState state;
 
-	public PauseButton(PlayingState state, double x, double y) {
-		super(state, "pause", x, y, 13, 14);
+	public PauseButton(PlayingState state, double x, double y, boolean pauses) {
+		super(state, pauses ? "pause" : "unpause", x, y, 13, 14);
 		this.state = state;
 	}
 
@@ -22,5 +23,6 @@ public class PauseButton extends Button {
 	@Override
 	protected void onRelease() {
 		state.setPaused(!state.isPaused());
+		state.getGame().getAudioManager().playSound(Audio.SWOOSH);
 	}
 }

@@ -1,5 +1,6 @@
 package world;
 
+import audio.Audio;
 import game.Game;
 import game.states.PlayingState;
 import utils.Animation;
@@ -74,6 +75,7 @@ public class Bird extends Hitbox {
 	 */
 	public void jump() {
 		vy = Game.scale(-5);
+		game.getAudioManager().playSound(Audio.WING);
 	}
 
 	/**
