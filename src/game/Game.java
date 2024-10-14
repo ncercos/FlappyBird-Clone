@@ -6,6 +6,9 @@ import game.states.PlayingState;
 import game.states.State;
 import inputs.KeyboardInputs;
 import inputs.MouseInputs;
+import ui.Score;
+import utils.Hitbox;
+import utils.Sprite;
 import world.Bird;
 import world.WorldManager;
 
@@ -35,16 +38,21 @@ public class Game extends JPanel implements ActionListener {
 	// Screen
 	private Image scene;
 	private Graphics pen;
+	private Hitbox screenHB;
 
 	// States
 	private final Timer timer;
 	private final MenuState menuState;
-	private final PlayingState playingState;
+	private PlayingState playingState;
 
 	// World
 	private final Bird bird;
+	private final Score score;
 	private final WorldManager worldManager;
 	private final AudioManager audioManager;
+
+	// Sprites
+	private Sprite readyTextSprite, overTextSprite, instructionSprite, resultSprite;
 
 	public Game() {
 		// Create game panel
@@ -81,9 +89,12 @@ public class Game extends JPanel implements ActionListener {
 		worldManager = new WorldManager(this);
 		audioManager = new AudioManager();
 		bird = new Bird(this);
+		score = new Score(this);
 		menuState = new MenuState(this);
 		playingState = new PlayingState(this);
 		timer = new Timer(1000/60, this);
+		screenHB = new Hitbox(0, 0, 144, 256);
+		loadUserInterfaceSprites();
 		requestFocus();
 		init();
 	}
@@ -93,6 +104,26 @@ public class Game extends JPanel implements ActionListener {
 	 */
 	private void init() {
 		timer.start();
+	}
+
+	/**
+	 * Loads all UI menu-related sprites.
+	 */
+	private void loadUserInterfaceSprites() {
+		readyTextSprite = new Sprite("ui/text/get_ready.png");
+		overTextSprite = new Sprite("ui/text/game_over.png");
+		instructionSprite = new Sprite("ui/instruction.png");
+		resultSprite = new Sprite("ui/results.png");
+	}
+
+	/**
+	 * Resets the game for a new round.
+	 */
+	public void reset() {
+		score.reset();
+		bird.reset();
+		worldManager.reset();
+		playingState = new PlayingState(this);
 	}
 
 	/**
@@ -176,11 +207,35 @@ public class Game extends JPanel implements ActionListener {
 		return bird;
 	}
 
+	public Score getScore() {
+		return score;
+	}
+
 	public WorldManager getWorldManager() {
 		return worldManager;
 	}
 
 	public AudioManager getAudioManager() {
 		return audioManager;
+	}
+
+	public Sprite getReadyTextSprite() {
+		return readyTextSprite;
+	}
+
+	public Sprite getOverTextSprite() {
+		return overTextSprite;
+	}
+
+	public Sprite getInstructionSprite() {
+		return instructionSprite;
+	}
+
+	public Sprite getResultSprite() {
+		return resultSprite;
+	}
+
+	public Hitbox getScreenHB() {
+		return screenHB;
 	}
 }

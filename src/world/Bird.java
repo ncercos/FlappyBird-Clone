@@ -22,14 +22,14 @@ public class Bird extends Hitbox {
 	private static final double DEATH_TILT = Math.toRadians(-90);
 
 	private final Game game;
-	private final Animation animation;
+	private Animation animation;
 	private double vy;
 	private boolean dead;
 
 	public Bird(Game game, double x, double y) {
 		super(x, y, BIRD_WIDTH / 2, BIRD_HEIGHT/ 2);
 		this.game = game;
-		animation = new Animation("birds/" + getBirdColor(), BIRD_WIDTH, BIRD_HEIGHT, 4);
+		changeColor();
 	}
 
 	public Bird(Game game) {
@@ -39,6 +39,7 @@ public class Bird extends Hitbox {
 	@Override
 	public void draw(Graphics g) {
 		super.draw(g);
+		if(animation == null)return;
 
 		PlayingState state = game.getPlayingState();
 
@@ -54,6 +55,17 @@ public class Bird extends Hitbox {
 			g2d.rotate(-tilt);
 			g2d.translate(-(int) x - width / 2, -(int) y - height / 2);
 		} else g.drawImage(animation.getCurrentImage(null), (int) x, (int) y, width, height, null);
+	}
+
+	/**
+	 * Reset attributes for new round.
+	 */
+	public void reset() {
+		x = 0;
+		y = 0;
+		vy = 0;
+		dead = false;
+		changeColor();
 	}
 
 	/**
@@ -76,6 +88,13 @@ public class Bird extends Hitbox {
 	public void jump() {
 		vy = Game.scale(-5);
 		game.getAudioManager().playSound(Audio.WING);
+	}
+
+	/**
+	 * Randomly chooses the bird's color: yellow, red, or blue.
+	 */
+	public void changeColor() {
+		animation = new Animation("birds/" + getBirdColor(), BIRD_WIDTH, BIRD_HEIGHT, 4);
 	}
 
 	/**

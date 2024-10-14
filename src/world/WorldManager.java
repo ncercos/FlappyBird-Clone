@@ -17,7 +17,7 @@ public class WorldManager {
 
 	private final Game game;
 	private BufferedImage backgroundImg, groundImg, topPipeImg, bottomPipeImg;
-	private final boolean daytime;
+	private boolean daytime;
 	private final int GROUND_WIDTH, GROUND_HEIGHT, GROUND_DRAW_HEIGHT;
 	private int groundX, groundSpeed;
 	private final List<Pipe> pipes;
@@ -26,17 +26,31 @@ public class WorldManager {
 
 	public WorldManager(Game game) {
 		this.game = game;
-		daytime = ThreadLocalRandom.current().nextBoolean();
+		calcDayOrNight();
 		loadSprites();
 
 		GROUND_WIDTH = Game.scale(groundImg.getWidth());
 		GROUND_HEIGHT = Game.scale(groundImg.getHeight());
 		GROUND_DRAW_HEIGHT = Game.GAME_HEIGHT - GROUND_HEIGHT;
 		groundX = 0;
-		groundSpeed = Game.scale(1.5);
+		groundSpeed = Game.scale(1.75);
 		groundHB = new Hitbox(0, Game.scale(200), 144, 60);
 
 		pipes = new ArrayList<>();
+	}
+
+	/**
+	 * Randomly choose day or night for background visual.
+	 */
+	public void calcDayOrNight() {
+		daytime = ThreadLocalRandom.current().nextBoolean();
+	}
+
+	public void reset() {
+		calcDayOrNight();
+		loadBackgroundSprite();
+		pipes.clear();
+		groundX = 0;
 	}
 
 	/**
@@ -71,6 +85,7 @@ public class WorldManager {
 		int openingSpace = Game.GAME_HEIGHT / 5;
 		bottomPipe.setY(topPipe.getY() + bottomPipe.getHeight() + openingSpace);
 		pipes.add(bottomPipe);
+		System.out.println("placing pipe");
 	}
 
 	/**
@@ -84,7 +99,7 @@ public class WorldManager {
 			if(pipe.overlaps(game.getBird())) return true;
 			if(!pipe.hasPassed() && game.getBird().getX() > (pipe.getX() + pipe.getWidth() / 2.0)) {
 				pipe.passed();
-				game.getPlayingState().getScore().increase();
+				game.getScore().increase();
 			}
 		}
 		return false;
@@ -101,15 +116,21 @@ public class WorldManager {
 	}
 
 	/**
-	 * Loads the sky and ground sprites to build a complete background.
+	 * Loads the background based on world time.
+	 */
+	private void loadBackgroundSprite() {
+		backgroundImg = Game.loadSprite("background/sky/" + (daytime ? "day" : "night") + ".png");
+	}
+
+	/**
+	 * Loads ground and pipe sprites.
 	 */
 	private void loadSprites() {
-		String PATH = "background/";
-		backgroundImg = Game.loadSprite(PATH + "sky/" + (daytime ? "day" : "night") + ".png");
-		groundImg = Game.loadSprite(PATH + "ground.png");
-		PATH = "pipes/";
+		final String PATH = "pipes/";
 		topPipeImg = Game.loadSprite(PATH + "top.png");
 		bottomPipeImg = Game.loadSprite(PATH + "bottom.png");
+		groundImg = Game.loadSprite("background/ground.png");
+		loadBackgroundSprite();
 	}
 
 	/**

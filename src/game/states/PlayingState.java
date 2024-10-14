@@ -2,8 +2,7 @@ package game.states;
 
 import audio.Audio;
 import game.Game;
-import ui.Score;
-import ui.buttons.PauseButton;
+import ui.buttons.*;
 import utils.Delay;
 import utils.Location;
 import utils.Sprite;
@@ -21,57 +20,65 @@ import java.awt.event.MouseEvent;
  */
 public class PlayingState extends State {
 
-	private Sprite readyTextSprite, overTextSprite, instructionSprite, resultSprite;
 	private boolean ready, paused, gameOver;
 	private PauseButton pauseButton, unpauseButton;
 	private final Timer pipeTimer;
 	private final Sprite.Bounce readyBounce;
 	private final Transition overTransition, resultTransition;
-	private final Score score;
 	private final Delay transitionDelay, deathDelay;
 
 	public PlayingState(Game game) {
 		super(game);
-		loadTextSprites();
-		initializeButtons();
-		updatePauseButton();
-		pipeTimer = new Timer(1700, _ -> game.getWorldManager().placePipes());
+		initPauseButton();
+		updateButtons();
+		pipeTimer = new Timer(1350, _ -> game.getWorldManager().placePipes());
 		readyBounce = new Sprite.Bounce(Game.scale(100));
 		overTransition = new Transition(Game.GAME_HEIGHT / 4 - Game.scale(15), Game.GAME_HEIGHT / 4, 3, false);
 		resultTransition = new Transition(Game.GAME_HEIGHT, (Game.GAME_HEIGHT / 4) + Game.scale(23), 20, true);
 		transitionDelay = new Delay(13);
 		deathDelay = new Delay(40);
-		score = new Score(game);
 	}
 
 	/**
-	 * Loads all user-interface menu-related texts.
+	 * The actions performed when the user interacts with game.
 	 */
-	private void loadTextSprites() {
-		readyTextSprite = new Sprite("ui/text/get_ready.png");
-		overTextSprite = new Sprite("ui/text/game_over.png");
-		instructionSprite = new Sprite("ui/instruction.png");
-		resultSprite = new Sprite("ui/results.png");
+	private void handleUserInput() {
+		if(gameOver || paused)return;
+		if(!ready) {
+			ready = true;
+			pipeTimer.start();
+			return;
+		}
+		game.getBird().jump();
 	}
 
 	/**
-	 * Register all buttons for this state.
+	 * Add the ok (menu) and share button to scene.
 	 */
-	private void initializeButtons() {
+	private void displayEndButtons() {
+		buttons.add(new OkButton(this, (Game.GAME_WIDTH / 4.0) - Game.scale(15), Game.scale(180)));
+		buttons.add(new ShareButton(this, (Game.GAME_WIDTH / 4.0) + Game.scale(47), Game.scale(180)));
+	}
+
+	/**
+	 * Register pause related buttons for this state.
+	 */
+	private void initPauseButton() {
 		int xy = Game.scale(10);
 		pauseButton = new PauseButton(this, xy, xy, true);
 		unpauseButton = new PauseButton(this, xy, xy, false);
 	}
 
 	/**
-	 * Updates pause button to display proper type based on game status.
+	 * Updates buttons to display proper type based on game status.
 	 */
-	private void updatePauseButton() {
+	private void updateButtons() {
 		if(paused) {
 			buttons.remove(pauseButton);
 			buttons.add(unpauseButton);
 		} else if(gameOver) {
 			buttons.clear();
+			displayEndButtons();
 		} else {
 			buttons.remove(unpauseButton);
 			buttons.add(pauseButton);
@@ -85,7 +92,7 @@ public class PlayingState extends State {
 	 */
 	public void setPaused(boolean paused) {
 		this.paused = paused;
-		updatePauseButton();
+		updateButtons();
 
 		if(!ready)return;
 		if(paused) pipeTimer.stop();
@@ -102,10 +109,6 @@ public class PlayingState extends State {
 
 	public boolean isGameOver() {
 		return gameOver;
-	}
-
-	public Score getScore() {
-		return score;
 	}
 
 	@Override
@@ -139,8 +142,9 @@ public class PlayingState extends State {
 		if(game.getWorldManager().movePipes() || bird.isDead()) {
 			game.getAudioManager().playSound(Audio.HIT);
 			gameOver = true;
-			score.updateAllTimeHighest();
-			updatePauseButton();
+			game.getScore().updateAllTimeHighest();
+			updateButtons();
+			pipeTimer.stop();
 		}
 	}
 
@@ -148,22 +152,22 @@ public class PlayingState extends State {
 	public void onDraw(Graphics g) {
 		game.getWorldManager().drawBackground(g);
 
-		score.draw(g);
+		if(!gameOver) game.getScore().draw(g);
 
 		if(!ready) {
-			g.drawImage(readyTextSprite.getImg(), (Game.GAME_WIDTH / 2) - (readyTextSprite.getWidth() / 2),
-					(Game.GAME_HEIGHT / 4), readyTextSprite.getWidth(), readyTextSprite.getHeight(), null);
-			g.drawImage(instructionSprite.getImg(), (Game.GAME_WIDTH / 2) - (instructionSprite.getWidth() / 2) + Game.scale(8),
-					(Game.GAME_HEIGHT / 4) + Game.scale(49), instructionSprite.getWidth(), instructionSprite.getHeight(), null);
+			g.drawImage(game.getReadyTextSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getReadyTextSprite().getWidth() / 2),
+					(Game.GAME_HEIGHT / 4), game.getReadyTextSprite().getWidth(), game.getReadyTextSprite().getHeight(), null);
+			g.drawImage(game.getInstructionSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getInstructionSprite().getWidth() / 2) + Game.scale(8),
+					(Game.GAME_HEIGHT / 4) + Game.scale(49), game.getInstructionSprite().getWidth(), game.getInstructionSprite().getHeight(), null);
 		}
 
 		game.getBird().draw(g);
 
 		if(gameOver && transitionDelay.isComplete()) {
-			g.drawImage(overTextSprite.getImg(), (Game.GAME_WIDTH / 2) - (overTextSprite.getWidth() / 2), overTransition.getY(),
-					overTextSprite.getWidth(), overTextSprite.getHeight(), null);
-			if(overTransition.isComplete()) g.drawImage(resultSprite.getImg(), (Game.GAME_WIDTH / 2) - (resultSprite.getWidth() / 2), resultTransition.getY(),
-					resultSprite.getWidth(), resultSprite.getHeight(), null);
+			g.drawImage(game.getOverTextSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getOverTextSprite().getWidth() / 2), overTransition.getY(),
+					game.getOverTextSprite().getWidth(), game.getOverTextSprite().getHeight(), null);
+			if(overTransition.isComplete()) g.drawImage(game.getResultSprite().getImg(), (Game.GAME_WIDTH / 2) - (game.getResultSprite().getWidth() / 2), resultTransition.getY(),
+					game.getResultSprite().getWidth(), game.getResultSprite().getHeight(), null);
 		}
 	}
 
@@ -172,23 +176,21 @@ public class PlayingState extends State {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(e.getKeyCode() != KeyEvent.VK_SPACE || gameOver || paused)return;
-		if(!ready) {
-			ready = true;
-			pipeTimer.start();
-			return;
-		}
-		game.getBird().jump();
+		if(e.getKeyCode() != KeyEvent.VK_SPACE)return;
+		handleUserInput();
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {}
 
 	@Override
-	public void mouseClicked(MouseEvent e) {}
+	public void mouseClicked(MouseEvent e) {
+	}
 
 	@Override
-	protected void onMousePress(MouseEvent e) {}
+	protected void onMousePress(MouseEvent e) {
+		handleUserInput();
+	}
 
 	@Override
 	protected void onMouseRelease(MouseEvent e) {}
