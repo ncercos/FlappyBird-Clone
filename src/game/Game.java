@@ -60,7 +60,7 @@ public class Game extends JPanel implements Runnable {
 
 		// Create game window
 		JFrame frame = new JFrame();
-		frame.setTitle("Flappy Bird");
+		frame.setTitle("Flappy Bird (Clone)");
 		frame.setIconImage(loadSprite("ui/icon.png"));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(this);
