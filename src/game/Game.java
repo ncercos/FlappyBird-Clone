@@ -150,14 +150,17 @@ public class Game extends JPanel implements Runnable {
 	 */
 	@Override
 	public void run() {
+		double timePerFrame = 1000000000.0 / 60;
+		long lastFrame = System.nanoTime();
+		long now;
+
 		while(true) {
-
-			update();
-			repaint();
-
-			try {
-				Thread.sleep(15);
-			} catch (InterruptedException ignored) {}
+			now = System.nanoTime();
+			if(now - lastFrame >= timePerFrame) {
+				update();
+				repaint();
+				lastFrame = now;
+			}
 		}
 	}
 
