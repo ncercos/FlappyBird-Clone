@@ -31,7 +31,9 @@
 
 Maintains smooth 60 FPS gameplay with precise timing and frame management.  
 &nbsp;
+
 **How it works**: A dedicated thread continuously updates game state and renders frames at consistent intervals.
+
 ```java
 @Override  
 public void run() {  
@@ -49,11 +51,14 @@ public void run() {
     }
  }
  ```
+
 ### 2. Smooth Graphics Rendering
 
 Double-buffered rendering system prevents screen tearing and ensures fluid animation.  
 &nbsp;
+
 **How it works**: Draws game elements to an off-screen buffer before displaying them on screen.
+
 ```java
 @Override  
 protected void paintComponent(Graphics g) {  
@@ -66,11 +71,14 @@ protected void paintComponent(Graphics g) {
  g.drawImage(scene, 0, 0, this);  
 }
  ```
+
 ### 3. Precise Collision Detection
 
 Accurate hitbox-based collision system for interactions between bird and obstacles.  
 &nbsp;
+
 **How it works**: Uses rectangle-based hitboxes with precise overlap detection.
+
 ```java
 public boolean overlaps(Hitbox hb) {  
   return (x <= hb.x + hb.width)  &&  
@@ -79,11 +87,14 @@ public boolean overlaps(Hitbox hb) {
          (y + height >= hb.y);  
 }
  ```
+
 ### 4. Realistic Physics System
 
 Smooth gravity-based movement with responsive jump mechanics.  
 &nbsp;
+
 **How it works**: Implements physics calculations for bird movement with configurable parameters.
+
 ```java
 public void move() {  
   if(dead)return;  
@@ -93,11 +104,14 @@ public void move() {
   // ...death logic...
 }
  ```
+
 ### 5. Dynamic Bird Colors
 
 Randomized bird colors with smooth animation system.  
 &nbsp;
+
 **How it works**: Randomly selects between yellow, red, or blue bird sprites with fluid wing animations every round!
+
 ```java
 private String getBirdColor() {  
   switch (ThreadLocalRandom.current().nextInt(3) + 1) {  
@@ -118,7 +132,9 @@ private String getBirdColor() {
 
 Tiered achievement system that rewards player skill. Awarded on scores of 10+, 20+, 30+, and 40+ points, respectively.  
 &nbsp;
+
 **How it works**: Awards increasingly valuable medals based on score thresholds, with visual feedback.
+
 ```java
 public enum Medal {  
   
@@ -147,6 +163,6 @@ public static Medal getMedal(int score) {
     
 <br><Br>
 ## ⚠️ Disclaimer
-<p align="center">Graphical and auditory assets used in this clone are owned by DOTGEARS (.GEARS) Studios © 2011 - 2024.<br>This project is created for <b>educational and entertainment purposes only</b> & has no affiliation with the original game.</p>
+<p>Graphical and auditory assets used in this clone are owned by DOTGEARS (.GEARS) Studios © 2011 - 2024.<br>This project is created for <b>educational and entertainment purposes only</b> & has no affiliation with the original game.</p>
 
 
