@@ -29,7 +29,7 @@
 
 ### 1. Game Loop System
 
-Maintains smooth 60 FPS gameplay with precise timing and frame management.
+Maintains smooth 60 FPS gameplay with precise timing and frame management.  
 &nbsp;
 **How it works**: A dedicated thread continuously updates game state and renders frames at consistent intervals.
 ```java
@@ -51,7 +51,7 @@ public void run() {
  ```
 ### 2. Smooth Graphics Rendering
 
-Double-buffered rendering system prevents screen tearing and ensures fluid animation.
+Double-buffered rendering system prevents screen tearing and ensures fluid animation.  
 &nbsp;
 **How it works**: Draws game elements to an off-screen buffer before displaying them on screen.
 ```java
@@ -68,7 +68,7 @@ protected void paintComponent(Graphics g) {
  ```
 ### 3. Precise Collision Detection
 
-Accurate hitbox-based collision system for interactions between bird and obstacles.
+Accurate hitbox-based collision system for interactions between bird and obstacles.  
 &nbsp;
 **How it works**: Uses rectangle-based hitboxes with precise overlap detection.
 ```java
@@ -81,7 +81,7 @@ public boolean overlaps(Hitbox hb) {
  ```
 ### 4. Realistic Physics System
 
-Smooth gravity-based movement with responsive jump mechanics.
+Smooth gravity-based movement with responsive jump mechanics.  
 &nbsp;
 **How it works**: Implements physics calculations for bird movement with configurable parameters.
 ```java
@@ -95,7 +95,7 @@ public void move() {
  ```
 ### 5. Dynamic Bird Colors
 
-Randomized bird colors with smooth animation system.
+Randomized bird colors with smooth animation system.  
 &nbsp;
 **How it works**: Randomly selects between yellow, red, or blue bird sprites with fluid wing animations every round!
 ```java
@@ -116,7 +116,7 @@ private String getBirdColor() {
   
  ### 6. Medal System
 
-Tiered achievement system that rewards player skill. Awarded on scores of 10+, 20+, 30+, and 40+ points, respectively.
+Tiered achievement system that rewards player skill. Awarded on scores of 10+, 20+, 30+, and 40+ points, respectively.  
 &nbsp;
 **How it works**: Awards increasingly valuable medals based on score thresholds, with visual feedback.
 ```java
@@ -146,6 +146,7 @@ public static Medal getMedal(int score) {
     </p>
     
 <br><Br>
+## ⚠️ Disclaimer
 <p align="center">Graphical and auditory assets used in this clone are owned by DOTGEARS (.GEARS) Studios © 2011 - 2024.<br>This project is created for <b>educational and entertainment purposes only</b> & has no affiliation with the original game.</p>
 
 
