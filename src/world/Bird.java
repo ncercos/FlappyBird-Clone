@@ -43,18 +43,16 @@ public class Bird extends Hitbox {
 
 		PlayingState state = game.getPlayingState();
 
-		if(state != null) {
-			Graphics2D g2d = (Graphics2D) g;
-			double tilt = Math.max(state.isGameOver() ? -DEATH_TILT : -MAX_TILT, Math.min(dead ? DEATH_TILT : MAX_TILT, vy * 0.1));
-			if (state.isGameOver()) animation.setCurrent(1);
+		Graphics2D g2d = (Graphics2D) g;
+		double tilt = game.getCurrentState().equals(game.getMenuState()) || !state.isReady() ? 0 : Math.max(state.isGameOver() ? -DEATH_TILT : -MAX_TILT, Math.min(dead ? DEATH_TILT : MAX_TILT, vy * 0.1));
+		if (state.isGameOver()) animation.setCurrent(1);
 
-			g2d.translate((int) x + width / 2, (int) y + height / 2);
-			g2d.rotate(tilt);
-			g2d.drawImage(animation.getCurrentImage(state, false), -width / 2, -height / 2, width, height, null);
+		g2d.translate((int) x + width / 2, (int) y + height / 2);
+		g2d.rotate(tilt);
+		g2d.drawImage(animation.getCurrentImage(state, false), -width / 2, -height / 2, width, height, null);
 
-			g2d.rotate(-tilt);
-			g2d.translate(-(int) x - width / 2, -(int) y - height / 2);
-		} else g.drawImage(animation.getCurrentImage(null, false), (int) x, (int) y, width, height, null);
+		g2d.rotate(-tilt);
+		g2d.translate(-(int) x - width / 2, -(int) y - height / 2);
 	}
 
 	/**
