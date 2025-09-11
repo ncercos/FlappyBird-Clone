@@ -21,6 +21,12 @@ public class KeyboardInputs implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		if(game.getCurrentState() == null)return;
 		game.getCurrentState().keyPressed(e);
+
+		if(e.getKeyCode() == KeyEvent.VK_C)
+			game.getWorldManager().toggleDaytime();
+
+		if(e.getKeyCode() == KeyEvent.VK_B)
+			game.getBird().changeColor();
 	}
 
 	@Override

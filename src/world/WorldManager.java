@@ -46,6 +46,14 @@ public class WorldManager {
 		daytime = ThreadLocalRandom.current().nextBoolean();
 	}
 
+	/**
+	 * Swaps from daytime to nighttime & vice versa.
+	 */
+	public void toggleDaytime() {
+		daytime = !daytime;
+		loadBackgroundSprite();
+	}
+
 	public void reset() {
 		calcDayOrNight();
 		loadBackgroundSprite();
