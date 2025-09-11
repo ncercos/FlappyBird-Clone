@@ -1,12 +1,12 @@
 package audio;
 
-import game.Game;
-
 import javax.sound.sampled.*;
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /*
  * Written by Nicholas Cercos
@@ -55,17 +55,18 @@ public class AudioManager {
 	 * @return A clip that sounds the sound effect.
 	 */
 	private Clip getClip(String fileName) {
-		File file = new File(Game.RESOURCE_URL + "sounds/" + fileName + ".wav");
-		AudioInputStream ais;
+		try (InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/sounds/" + fileName + ".wav"));
+				 BufferedInputStream bis = new BufferedInputStream(is)) {
 
-		try {
-			ais = AudioSystem.getAudioInputStream(file);
-			Clip c = AudioSystem.getClip();
-			c.open(ais);
-			return c;
+			AudioInputStream ais = AudioSystem.getAudioInputStream(bis);
+			Clip clip = AudioSystem.getClip();
+			clip.open(ais);
+			return clip;
+
 		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
+
 }

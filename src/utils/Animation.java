@@ -59,7 +59,7 @@ public class Animation {
 	 * @throws IOException If the file cannot be accessed/found.
 	 */
 	public Image[] loadImages(String name) throws IOException {
-		BufferedImage sprite = ImageIO.read(new File(Game.RESOURCE_URL + name + ".png"));
+		BufferedImage sprite = Game.loadSprite(name + ".png");
 		final int WIDTH = sprite.getWidth() / spriteWidth;
 		Image[] images = new Image[WIDTH];
 

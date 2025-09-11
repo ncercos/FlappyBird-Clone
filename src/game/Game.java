@@ -17,7 +17,6 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 /*
@@ -30,7 +29,6 @@ public class Game extends JPanel implements Runnable {
 	public final static float GAME_SCALE = 4f;
 	public final static int GAME_WIDTH = scale(144);
 	public final static int GAME_HEIGHT = scale(256);
-	public static final String RESOURCE_URL = "./res/";
 
 	// Screen
 	private Image scene;
@@ -182,7 +180,7 @@ public class Game extends JPanel implements Runnable {
 	 */
 	public static BufferedImage loadSprite(String path) {
 		try {
-			return ImageIO.read(new File(Game.RESOURCE_URL + path));
+			return ImageIO.read(Game.class.getResourceAsStream("/" + path));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -197,6 +195,10 @@ public class Game extends JPanel implements Runnable {
 	 */
 	public static int scale(double value) {
 		return (int) (value * Game.GAME_SCALE);
+	}
+
+	public MenuState getMenuState() {
+		return menuState;
 	}
 
 	public PlayingState getPlayingState() {
