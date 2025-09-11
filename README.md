@@ -1,3 +1,4 @@
+
 <p align="center">
   <a href="https://youtu.be/I741sSjlwh0?si=DiBZN-41UxAiezoA" target="_blank" rel="noreferrer"><img src="https://i.imgur.com/iJnsQco.png" alt="Flappy Bird (Clone)"></a>
 </p>
@@ -8,56 +9,142 @@
 <div style="width: 100%; display: flex; justify-content: space-between;">
   
   <div style="width: 48%; text-align: center;">
-    <h2>🏠 Main Menu(s)</h2>
     <p align="center">
-      <img src="https://i.gyazo.com/d00e491bbc59d501220e12b83fc1fc64.png" alt="Daytime Menu" width="45%">
-      <img src="https://i.gyazo.com/e0cd311e5b8863c6b8f0defb757a0374.png" alt="Nighttime Menu" width="45%">
+      <img src="https://i.imgur.com/3l2189u.gif" alt="Daytime Menu" width="45%">
+      <img src="https://i.imgur.com/w2xREia.gif" alt="Nighttime Menu" width="45%">
     </p>
-    <p align="center"><i><b>Each round will randomly be set during the DAY or NIGHT!</i></b></p>
   </div>
-  
-  <div style="width: 48%; text-align: center;">
-    <h2>📱 UI/UX</h2>
-    <p align="center">
-      <img src="https://i.gyazo.com/a290a212f531360bf57a3ef212671503.png" alt="Instructions" width="45%">
-      <img src="https://i.gyazo.com/5e0467bfff068c2bd5dd52569eae0326.pngg" alt="Game Results" width="45%">
-    </p>
-    <p align="center"><i><b>Simple instructions & end-game score showcase! </i></b></p>
-  </div>
-
 </div>
 
 <div style="width: 100%; display: flex; justify-content: space-between;">
 
+## ⚙️ Technologies Used
+- **Java SDK 22**: Core programming language and development kit  
+- **Swing/AWT**: Used for GUI components and graphics rendering  
+- **Custom Game Engine**: Built from scratch with game state management  
+- **Thread-based Game Loop**: Maintains consistent 60 FPS gameplay  
+- **BufferedImage**: Handles sprite loading and image manipulation 
+
+## ✨Key Features 
+
+### 1. Game Loop System
+
+Maintains smooth 60 FPS gameplay with precise timing and frame management.
+&nbsp;
+**How it works**: A dedicated thread continuously updates game state and renders frames at consistent intervals.
+```java
+@Override  
+public void run() {  
+  double timePerFrame = 1000000000.0 / 60;  
+  long lastFrame = System.nanoTime();  
+  long now;  
+  
+  while(true) {  
+	  now = System.nanoTime();  
+	  if(now - lastFrame >= timePerFrame) {  
+		  update();  
+		  repaint();  
+		  lastFrame = now;  
+	  } 
+    }
+ }
+ ```
+### 2. Smooth Graphics Rendering
+
+Double-buffered rendering system prevents screen tearing and ensures fluid animation.
+&nbsp;
+**How it works**: Draws game elements to an off-screen buffer before displaying them on screen.
+```java
+@Override  
+protected void paintComponent(Graphics g) {  
+ if(scene == null) {  
+	 scene = createImage(GAME_WIDTH, GAME_HEIGHT);  
+	 pen = scene.getGraphics();  
+ }  
+ pen.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);  
+ if(getCurrentState() != null) getCurrentState().draw(pen);  
+ g.drawImage(scene, 0, 0, this);  
+}
+ ```
+### 3. Precise Collision Detection
+
+Accurate hitbox-based collision system for interactions between bird and obstacles.
+&nbsp;
+**How it works**: Uses rectangle-based hitboxes with precise overlap detection.
+```java
+public boolean overlaps(Hitbox hb) {  
+  return (x <= hb.x + hb.width)  &&  
+         (x + width >= hb.x)     &&  
+         (y <= hb.y + hb.height) &&  
+         (y + height >= hb.y);  
+}
+ ```
+### 4. Realistic Physics System
+
+Smooth gravity-based movement with responsive jump mechanics.
+&nbsp;
+**How it works**: Implements physics calculations for bird movement with configurable parameters.
+```java
+public void move() {  
+  if(dead)return;  
+  vy += GRAVITY;  
+  y += vy;  
+  y = Math.max(y, 0);  
+  // ...death logic...
+}
+ ```
+### 5. Dynamic Bird Colors
+
+Randomized bird colors with smooth animation system.
+&nbsp;
+**How it works**: Randomly selects between yellow, red, or blue bird sprites with fluid wing animations every round!
+```java
+private String getBirdColor() {  
+  switch (ThreadLocalRandom.current().nextInt(3) + 1) {  
+  default -> { return "yellow"; }  
+  case 2 -> { return "red"; }  
+  case 3 -> { return "blue"; }  
+  }
+}
+ ```
+
   <div style="width: 48%; text-align: center;">
-    <h2>🐤 Bird Colors</h2>
     <p align="center">
       <img src="https://i.imgur.com/qXD27ac.png" alt="Different Bird Colors" width="85%">
     </p>
-    <p align="center"><b>
-      <span style="color: #f8b733;">YELLOW</span> ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎
-      <span style="color: #4bc1f8;">BLUE</span>   ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎  
-      <span style="color: #fc3800;">RED</span>    
-      <br><br><i>A color will be chosen RANDOMLY each and every round!</i>
-    </b></p>
   </div>
+  
+ ### 6. Medal System
+
+Tiered achievement system that rewards player skill. Awarded on scores of 10+, 20+, 30+, and 40+ points, respectively.
+&nbsp;
+**How it works**: Awards increasingly valuable medals based on score thresholds, with visual feedback.
+```java
+public enum Medal {  
+  
+ BRONZE, SILVER, GOLD, PLATINUM;  
+  
+ private final int minimumScore;  
+  
+ Medal() {    
+  minimumScore = (ordinal() + 1) * 10;  
+ }  
+
+public static Medal getMedal(int score) {  
+ Medal medal = null;  
+ for(Medal m : values()) {  
+  if(score >= m.getMinimumScore())  
+	  medal = m;  
+ }  
+ return medal;  
+}  
+ ```
 
   <div style="width: 48%; text-align: center;">
-    <h2>🏅 Medals</h2>
     <p align="center">
       <img src="https://i.imgur.com/fTSeljf.png" alt="Score Medal Types" width="85%">
     </p>
-    <p align="center"><b>
-      <span style="color: #ffb141;"> ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ BRONZE</span>   ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎  
-      <span style="color: #9d9898;">SILVER</span>   ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ 
-      <span style="color: #e3c354;">GOLD</span>     ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎
-      <span style="color: #d0cece;">PLATINUM</span> ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎ ‎
-      <br><br><i>A medal is awarded on scores of 10+, 20+, 30+, and 40+ points, respectively.</i>
-    </b></p>
-  </div>
-
-</div>
-
+    
 <br><Br>
 <p align="center">Graphical and auditory assets used in this clone are owned by DOTGEARS (.GEARS) Studios © 2011 - 2024.<br>This project is created for <b>educational and entertainment purposes only</b> & has no affiliation with the original game.</p>
 
