@@ -22,7 +22,7 @@
   
 **Objective**: Guide your bird through pipes by keeping it airborne. Each successful pipe passage earns a point, with medals awarded at score milestones.
   
-- `SPACE`/'Left Mouse Button' - Flap Wings
+- `SPACE`/`Left Mouse Button` - Jump
 - `C` - Toggle Day/Night
 - `B` - Change Bird Color
 &nbsp;
