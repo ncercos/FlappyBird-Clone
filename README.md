@@ -18,6 +18,15 @@
 
 <div style="width: 100%; display: flex; justify-content: space-between;">
 
+## 🎮 How to Play  
+  
+**Objective**: Guide your bird through pipes by keeping it airborne. Each successful pipe passage earns a point, with medals awarded at score milestones.
+  
+- `SPACE`/'Left Mouse Button' - Flap Wings
+- `C` - Toggle Day/Night
+- `B` - Change Bird Color
+&nbsp;
+
 ## ⚙️ Technologies Used
 - **Java SDK 22**: Core programming language and development kit  
 - **Swing/AWT**: Used for GUI components and graphics rendering  
